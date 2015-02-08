@@ -1,5 +1,5 @@
 ;; Notes to self:
-;; (car nil) = nil
+;; (car nil) = (cdr nil) = nil
 ;; (symbol? nil) = nil
 ;; (atom? x) = (not (cons? x))
 ;;
