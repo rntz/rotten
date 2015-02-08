@@ -1,0 +1,11 @@
+It actually doesn't matter much how difficult it is to implement mylisp in
+clojure/racket.
+
+It matters how difficult it is to implement mylisp in mylisp.
+
+So I should start by thinking about the semantics of mylisp, and a mock
+mylisp-in-mylisp implementation.
+
+* metacircularly evaluate mylisp
+* compile mylisp to clojure
+* compile mylisp to racket
