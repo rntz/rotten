@@ -1,13 +1,13 @@
 TODO: write rotten->{clojure,scheme,racket} compiler in rotten
 
-It actually doesn't matter much how difficult it is to implement mylisp in
+It actually doesn't matter much how difficult it is to implement rotten in
 clojure/racket.
 
-It matters how difficult it is to implement mylisp in mylisp.
+It matters how difficult it is to implement rotten in rotten.
 
-So I should start by thinking about the semantics of mylisp, and a mock
-mylisp-in-mylisp implementation.
+So I should start by thinking about the semantics of rotten, and a mock
+rotten-in-rotten implementation.
 
-* metacircularly evaluate mylisp
-* compile mylisp to clojure
-* compile mylisp to racket
+* metacircularly evaluate rotten
+* compile rotten to clojure
+* compile rotten to racket
