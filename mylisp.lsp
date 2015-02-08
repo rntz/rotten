@@ -1,3 +1,11 @@
+;; Notes to self:
+;; (car nil) = nil
+;; (symbol? nil) = nil
+;; (atom? x) = (not (cons? x))
+;;
+;; specials: quote fn if or
+;; builtins: cons car cdr set-car! set-cdr! symbol? atom? cons? eq? apply
+
 ;; bootstrapping
 (def (id x) x)
 (def (caar x) (car (car x)))
@@ -71,7 +79,7 @@
       (cons 'symbol? symbol?)
       (cons 'atom? atom?)
       (cons 'cons? cons?)
-      (cons 'eq eq)
+      (cons 'eq? eq?)
       (cons 'apply apply))))
 
 ;; compiler to... something
