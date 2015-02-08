@@ -1,3 +1,4 @@
+;; -*- mode: scheme -*-
 ;; Notes to self:
 ;; (car nil) = (cdr nil) = nil
 ;; (symbol? nil) = nil
@@ -7,7 +8,6 @@
 ;; builtins: cons car cdr set-car! set-cdr! symbol? atom? cons? eq? apply
 
 ;; bootstrapping
-(def (id x) x)
 (def (caar x) (car (car x)))
 (def (cadr x) (car (cdr x)))
 (def (cddr x) (cdr (cdr x)))
@@ -59,14 +59,12 @@
     (eval stmt env)))
 
 (def (eval-def target body env)
-  (set-car! env
-    (cons
-      (if (cons? target)
-        ;; defining a function
-        (cons (car target) (make-fn (cdr target) body env))
-        ;; defining a value
-        (cons target (eval-body body env)))
-      (car env))))
+  (define x (if (cons? target)
+              ;; defining a function
+              (cons (car target) (make-fn (cdr target) body env))
+              ;; defining a value
+              (cons target (eval-body body env))))
+  (set-car! env (cons x (car env))))
 
 (def init-env
   (list

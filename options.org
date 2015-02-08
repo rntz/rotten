@@ -1,3 +1,5 @@
+TODO: write rotten->{clojure,scheme,racket} compiler in rotten
+
 It actually doesn't matter much how difficult it is to implement mylisp in
 clojure/racket.
 
