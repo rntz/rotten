@@ -4,10 +4,11 @@
 ;; (symbol? nil) = nil
 ;; (atom? x) = (not (cons? x))
 ;;
-;; specials: quote fn if or
+;; specials: quote fn if
 ;; builtins: cons car cdr set-car! set-cdr! symbol? atom? cons? eq? apply
 
 ;; bootstrapping
+(def (not x) (if x () 't))
 (def (caar x) (car (car x)))
 (def (cadr x) (car (cdr x)))
 (def (cddr x) (cdr (cdr x)))
@@ -15,7 +16,7 @@
 
 (def (list . xs) xs)
 (def (map f x) (if x (cons (f (car x)) (map f (cdr x)))))
-(def (any test l) (if l (or (get (car l)) (find get (cdr l)))))
+(def (any test l) (if l ((fn (x) (if x x (any test (cdr l)))) (test (car l)))))
 (def (assoc k l) (any (fn (x) (if (eq? k (car x)) x)) l))
 
 ;;; TODO: fexprize this and see if it's shorter.
@@ -24,16 +25,16 @@
 ;; env is a list of frames; a frame is a list of (name . value) pairs
 (def (eval x env)
   (if
+    (eq? x 'ENV) env                    ;debugging magic
     (symbol? x) (lookup x env)          ;variable
     (atom? x) x                         ;literal
     ;; special forms
     (eq? (car x) 'quote) (cadr x)
     (eq? (car x) 'fn)    (make-fn (cadr x) (cddr x) env)
-    (eq? (car x) 'or)    (or (eval (cadr x) env) (eval (cons 'or (cddr x)) env))
     (eq? (car x) 'if)    (eval-if (cdr x) env)
     (eq? (car x) 'def)   (eval-def (cadr x) (cddr x) env)
     ;; otherwise, function application
-    (apply (eval (car x) env) (map (fn (x) (eval x env)) env))))
+    (apply (eval (car x) env) (map (fn (x) (eval x env)) (cdr x)))))
 
 (def (lookup name env) (cdr (any (fn (x) (assoc name x)) env)))
 
@@ -62,7 +63,7 @@
            ;; defining a value
            (cons target (eval-body body env))))
   (set-car! env (cons x (car env)))
-  x)
+  (cdr x))
 
 (def init-env
   (list
