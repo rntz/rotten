@@ -12,7 +12,7 @@
 ;; Metacircular evaluator
 ;; env is a list of frames; a frame is a list of (name . value) pairs
 (define (eval x env)
-  (r:displayln (format "eval ~a" x))
+  ;(r:displayln (format "eval ~a" x))
   (cond
     ((symbol? x) (lookup x env))      ;variable
     ((atom? x) x)                     ;literal
@@ -46,7 +46,7 @@
     (#t nil)))
 
 (define (eval-body body env)
-  (r:displayln (format "eval-body ~a" body))
+  ;(r:displayln (format "eval-body ~a" body))
   (if (null? body) nil
     (let ((x (eval (car body) env)))
       (if (null? (cdr body)) x
@@ -98,8 +98,8 @@
       (if (eof-object? x) (reverse acc)
         (loop (cons x acc))))))
 
-(define (load-in filename env)
-  (eval-body (call-with-input-file filename read-all) env))
+(define (read-file filename) (call-with-input-file filename read-all))
+(define (load-in filename env) (eval-body (read-file filename) env))
 
 (define (ld filename) (load-in filename init-env))
 (define (ev x) (eval x init-env))
