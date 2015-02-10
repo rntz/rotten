@@ -21,6 +21,7 @@
 
 ;;; TODO: fexprize this and see if it's shorter.
 
+
 ;; metacircular evaluator
 ;; env is a list of frames; a frame is a list of (name . value) pairs
 (def (eval x env)
@@ -65,6 +66,8 @@
   (set-car! env (cons x (car env)))
   (cdr x))
 
+
+;; environment
 (def init-env
   (list
     (list
