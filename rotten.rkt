@@ -13,7 +13,6 @@
 ;; Metacircular evaluator
 ;; env is a list of frames; a frame is a list of (name . value) pairs
 (define (eval x [env (env*)])
-  ;(r:displayln (format "eval ~a" x))
   (cond
     ((symbol? x) (lookup x env))      ;variable
     ((atom? x) x)                     ;literal
@@ -47,7 +46,6 @@
     (#t nil)))
 
 (define (eval-body body env)
-  ;(r:displayln (format "eval-body ~a" body))
   (if (null? body) nil
     (let ((x (eval (car body) env)))
       (if (null? (cdr body)) x
