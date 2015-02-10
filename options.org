@@ -11,3 +11,35 @@ rotten-in-rotten implementation.
 * metacircularly evaluate rotten
 * compile rotten to clojure
 * compile rotten to racket
+* compile to a stack machine
+let's design a simple stack machine!
+
+stack machine has an
+- I: instruction stream
+- E: environment stack (for local vars)
+- D: data stack (for arguments, return values, and return frames)
+
+instructions & data are s-expressions, but no lisp functions
+
+function is represented as (instrs . closure)
+where instrs is a list of instructions
+and closure is a list representing its environment
+
+NB. this impl strategy means (cons? f) will return true when f is a function.
+
+instructions:
+- (push X): pushes X onto D
+- (access N): pushes E(N) onto D
+- (call N):
+  applies D(N) to D(N-1..0), that is:
+
+      let args = pop N elements from D
+      let (instrs . env) = pop D
+      push (I . E) on D
+      I := instrs
+      E := args ++ env
+
+- return
+- cons, car, cdr, setcar, setcdr, symbol?, cons?, eq?, apply
+
+how do I implement assignables?
