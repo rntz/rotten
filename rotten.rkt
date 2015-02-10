@@ -73,6 +73,7 @@
   (lambda args
     (if (apply x args) 't nil)))
 
+
 ;; Base environment
 (define (make-env)
   (list
