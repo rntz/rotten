@@ -1,6 +1,6 @@
 #lang racket
 
-(require (only-in racket define make-parameter))
+(require (only-in racket define make-parameter) (prefix-in racket: racket))
 (require (except-in r5rs define eval))
 
 (define nil '())
@@ -8,6 +8,11 @@
 (define (true? x) (not (nil? x)))
 (define cons? pair?)
 (define (atom? x) (not (cons? x)))
+
+(define (mutify x)
+  (if (racket:pair? x)
+    (cons (mutify (racket:car x)) (mutify (racket:cdr x)))
+    x))
 
 
 ;; Metacircular evaluator
@@ -105,3 +110,40 @@
 (define (load-file filename [env (env*)]) (eval-body (read-file filename) env))
 
 (define (reload) (reset) (load-file "rotten.rot"))
+
+
+;; Tests
+(module+ test
+  (require rackunit)
+
+  (define-syntax-rule (check-eval result src)
+    (check-equal? (mutify result) (eval (mutify 'src))))
+
+  (define-syntax-rule (check-t src) (check-eval 't src))
+  (define-syntax-rule (check-nil src) (check-eval '() src))
+
+  ;; simple
+  (check-eval 2 2)
+  (check-eval '() ())
+  (check-eval cons cons)
+  (check-eval 1 (car (cons 1 2)))
+  (check-eval 2 (cdr (cons 1 2)))
+  (check-eval 1 (car '(1 2)))
+  (check-eval 'a 'a)
+  (check-t (symbol? 'a))
+  (check-eval '(1 . 2) (cons 1 2))
+
+  ;; type-tests
+  (check-t (cons? (cons 'a 'b)))
+  (check-t (cons? '(a b c)))
+  (check-nil (atom? '(a b c)))
+  (check-t (atom? ()))
+  (check-t (atom? 'a))
+  (check-t (atom? 1))
+
+  ;; functions
+  (check-eval 0 ((fn (x) x) 0))
+  (check-eval '(a) ((fn (x) (cons x nil)) 'a))
+  (check-eval '(a) ((fn (x y) (cons x nil)) 'a 'b))
+  (check-eval '(a . b) ((fn (x y) (cons x y)) 'a 'b))
+  )
