@@ -1,6 +1,7 @@
-#lang r5rs
+#lang racket
 
-(#%require (only racket error format) (prefix r: racket)) ;magic
+(require (only-in racket define make-parameter))
+(require (except-in r5rs define eval))
 
 (define nil '())
 (define (nil? x) (eq? x nil))
@@ -11,7 +12,7 @@
 
 ;; Metacircular evaluator
 ;; env is a list of frames; a frame is a list of (name . value) pairs
-(define (eval x env)
+(define (eval x [env (env*)])
   ;(r:displayln (format "eval ~a" x))
   (cond
     ((symbol? x) (lookup x env))      ;variable
@@ -75,7 +76,7 @@
     (if (apply x args) 't nil)))
 
 ;; Base environment
-(define init-env
+(define (make-env)
   (list
     (list
       (cons 'nil '())
@@ -90,6 +91,9 @@
       (cons 'eq? (predicate eq?))
       (cons 'apply apply))))
 
+(define env* (make-parameter (make-env)))
+(define (reset) (env* (make-env)))
+
 
 ;; Convenience tools
 (define (read-all port)
@@ -99,7 +103,4 @@
         (loop (cons x acc))))))
 
 (define (read-file filename) (call-with-input-file filename read-all))
-(define (load-in filename env) (eval-body (read-file filename) env))
-
-(define (ld filename) (load-in filename init-env))
-(define (ev x) (eval x init-env))
+(define (load-file filename [env (env*)]) (eval-body (read-file filename) env))
