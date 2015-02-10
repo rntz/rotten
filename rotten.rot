@@ -68,9 +68,10 @@
 
 
 ;; environment
-(def init-env
+(def env
   (list
     (list
+      (cons 'nil  nil)
       (cons 'cons cons)
       (cons 'car car)
       (cons 'cdr cdr)
@@ -81,5 +82,7 @@
       (cons 'cons? cons?)
       (cons 'eq? eq?)
       (cons 'apply apply))))
+
+(def (e x) (eval x env))
 
 ;; compiler to... something

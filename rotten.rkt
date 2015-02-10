@@ -42,7 +42,7 @@
         (cons (cons (car params) (car args))
           (make-frame (cdr params) (cdr args)))
         (error (format "parameter mismatch: ~a doesn't match ~a" params args))))
-    ((true? args) (error (format "unused arguments: ~a") args))
+    ((true? args) (error (format "unused arguments: ~a" args)))
     (#t nil)))
 
 (define (eval-body body env)
@@ -80,8 +80,8 @@
     (list
       (cons 'nil '())
       (cons 'cons cons)
-      (cons 'car car)
-      (cons 'cdr cdr)
+      (cons 'car (lambda (x) (if (nil? x) '() (mcar x))))
+      (cons 'cdr (lambda (x) (if (nil? x) '() (mcdr x))))
       (cons 'set-car! set-car!)
       (cons 'set-cdr! set-cdr!)
       (cons 'symbol? (predicate symbol?))
@@ -103,3 +103,5 @@
 
 (define (read-file filename) (call-with-input-file filename read-all))
 (define (load-file filename [env (env*)]) (eval-body (read-file filename) env))
+
+(define (reload) (reset) (load-file "rotten.rot"))
