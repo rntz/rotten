@@ -28,7 +28,7 @@ and closure is a list representing its environment
 NB. this impl strategy means (cons? f) will return true when f is a function.
 
 instructions:
-- (push X): pushes X onto D
+- (push LIT): pushes LIT onto D
 - (access N): pushes E(N) onto D
 - (call N):
   applies D(N) to D(N-1..0), that is:
@@ -39,7 +39,15 @@ instructions:
       I := instrs
       E := args ++ env
 
+- (closure INSTRS)
+  pushes (INSTRS . E) onto D
+
+- (if INSTRS INSTRS)
+  is this really suitable? kind of weird. forks instruction stream.
+
 - return
-- cons, car, cdr, setcar, setcdr, symbol?, cons?, eq?, apply
+- cons, car, cdr, set-car!, set-cdr!, symbol?, cons?, eq?, apply
+- (set-global SYMBOL)
+- (get-global SYMBOL)
 
 how do I implement assignables?
