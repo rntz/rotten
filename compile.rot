@@ -1,0 +1,75 @@
+;; -*- mode: scheme -*-
+;; bootstrapping
+(def (not x) (if x () 't))
+(def (caar x) (car (car x)))
+(def (cadr x) (car (cdr x)))
+(def (cddr x) (cdr (cdr x)))
+(def (cdar x) (cdr (car x)))
+
+(def (list . xs) xs)
+
+(def (rev-append x y) (if x (rev-append (cdr x) (cons (car x) y)) y))
+(def (rev l) (rev-append l nil))
+(def (append x y) (rev-append (rev x) y))
+
+;; (def (map f x) (if x (cons (f (car x)) (map f (cdr x)))))
+;; (def (any test l) (if l ((fn (x) (if x x (any test (cdr l)))) (test (car l)))))
+;; (def (assoc k l) (any (fn (x) (if (eq? k (car x)) x)) l))
+
+(def (len- i l) (if l (len- (+ 1 i) (cdr l)) i))
+(def (len l) (len- 0 l))
+
+(def (index- i e l) (if l (if (eq? e (car l)) i (index- (+ 1 i) e (cdr l)))))
+(def (index e l) (index- e l 0))
+
+
+;; env is a list of local variables
+(def (compile-prog x) (rev (compile x '() '())))
+
+(def (compile x env accum)
+  (if
+    ;; variable
+    (symbol? x) (cons (var-access x (index x env)) accum)
+    ;; literal
+    (atom? x) (cons (list 'push x) accum)
+    ;; special forms
+    (eq? (car x) 'quote) (cons (list 'push (cadr x)) accum)
+    (eq? (car x) 'fn)    (cons (fn-closure (cadr x) (cddr x) env) accum)
+    (eq? (car x) 'if)    (compile-if (cdr x) env accum)
+    (eq? (car x) 'def)   (compile-def (cadr x) (cddr x) env accum)
+    ;; builtin functions
+    ;; FIXME: need to check argument length!
+    (index (car x) '(cons car cdr set-car! set-cdr! symbol? cons? eq? apply))
+      (cons (car x) (compile-args x env accum))
+    ;; otherwise, function application
+    (cons (list 'call (len (cdr x))) (compile-args x env accum))))
+
+(def (compile-args xs env accum)
+  (if xs
+    (compile-args (cdr xs) env (compile (car xs) env accum))
+    accum))
+
+(def (var-access var ix) (if ix (list 'access ix) (list 'getglobal var)))
+
+(def (fn-closure params body env accum)
+  (list 'closure (compile body (append (params-env params) env) '())))
+
+(def (params-env ps)
+  (if (cons? ps) (cons (car ps) (params-env ps))
+      ps         (list ps)))
+
+(def (compile-if conds env accum)
+  (if (cdr conds)
+    (cons (list 'if
+            (compile (cadr conds) env '())
+            (compile-if (cddr conds env '())))
+      (compile (car conds) env accum))
+    (cons (list 'push (car conds)) accum)))
+
+(def (compile-def target body env accum)
+  (if (cons? target)
+    ;; defining a function
+    (cons (list 'setglobal (car target))
+      (cons (fn-closure (cdr target) body env) accum))
+    ;; defining a variable
+    (cons (list 'setglobal target) (compile (car body) env accum))))
