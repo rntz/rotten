@@ -19,35 +19,27 @@ stack machine has an
 - E: environment stack (for local vars)
 - D: data stack (for arguments, return values, and return frames)
 
-instructions & data are s-expressions, but no lisp functions
-
-function is represented as (instrs . closure)
-where instrs is a list of instructions
-and closure is a list representing its environment
-
-NB. this impl strategy means (cons? f) will return true when f is a function.
+functions/closures are structures with fields:
+- arity: number of parameters (excluding rest parameter)
+- has-rest-param: whether it has a rest parameter or not
+- env: list representing closed-over environment
+- instrs: the VM instructions for the function
 
 instructions:
 - (push LIT): pushes LIT onto D
+- pop: pops one element from D and ignores it
 - (access N): pushes E(N) onto D
-- (call N):
-  applies D(N) to D(N-1..0), that is:
+- (call N): calls D(N) with D(N-1..0) as arguments
+- (closure ARITY REST-PARAM INSTRS): makes a closure and pushes it onto D
+- (if THEN-INSTRS ELSE-INSTRS):
+  pops D. if result is true, proceeds to THEN-INSTRS; otherwise, proceeds to ELSE-INSTRS.
 
-      let args = pop N elements from D
-      let (instrs . env) = pop D
-      push (I . E) on D
-      I := instrs
-      E := args ++ env
+- cons, car, cdr, set-car!, set-cdr!, symbol?, cons?, eq?:
+  pop appropriate # of arguments, apply builtin function, push result.
 
-- (closure INSTRS)
-  pushes (INSTRS . E) onto D
+- apply: pops an argument-list and a function from D, then applies the fn to the args.
 
-- (if INSTRS INSTRS)
-  is this really suitable? kind of weird. forks instruction stream.
-
-- return
-- cons, car, cdr, set-car!, set-cdr!, symbol?, cons?, eq?, apply
-- (set-global SYMBOL)
-- (get-global SYMBOL)
+- (set-global SYMBOL): sets SYMBOL to (pop D) in global environment.
+- (get-global SYMBOL): pushes the value of SYMBOL in global environment onto D.
 
 how do I implement assignables?
