@@ -20,11 +20,16 @@
 (def (len l) (len- 0 l))
 
 (def (index- i e l) (if l (if (eq? e (car l)) i (index- (+ 1 i) e (cdr l)))))
-(def (index e l) (index- e l 0))
+(def (index e l) (index- 0 e l))
 
 
 ;; env is a list of local variables
-(def (compile-prog x) (rev (compile x '() '())))
+(def (compile-prog body env) (rev (compile-body body env '())))
+(def (compile-body body env accum)
+  ((if (cdr body)
+     (fn (x) (compile-body (cdr body) env (cons 'pop x)))
+     (fn (x) x))
+    (compile (car body) env accum)))
 
 (def (compile x env accum)
   (if
@@ -39,10 +44,11 @@
     (eq? (car x) 'def)   (compile-def (cadr x) (cddr x) env accum)
     ;; builtin functions
     ;; FIXME: need to check argument length!
-    (index (car x) '(cons car cdr set-car! set-cdr! symbol? cons? eq? apply))
-      (cons (car x) (compile-args x env accum))
+    (index (car x) builtins) (cons (car x) (compile-args (cdr x) env accum))
     ;; otherwise, function application
     (cons (list 'call (len (cdr x))) (compile-args x env accum))))
+
+(def builtins '(cons car cdr set-car! set-cdr! symbol? cons? eq? apply + -))
 
 (def (compile-args xs env accum)
   (if xs
@@ -51,11 +57,12 @@
 
 (def (var-access var ix) (if ix (list 'access ix) (list 'getglobal var)))
 
-(def (fn-closure params body env accum)
-  (list 'closure (compile body (append (params-env params) env) '())))
+(def (fn-closure params body env)
+  ;; FIXME: need to add a "return"
+  (cons 'closure (compile-prog body (append (params-env params) env))))
 
 (def (params-env ps)
-  (if (cons? ps) (cons (car ps) (params-env ps))
+  (if (cons? ps) (cons (car ps) (params-env (cdr ps)))
       ps         (list ps)))
 
 (def (compile-if conds env accum)
