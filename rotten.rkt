@@ -93,7 +93,9 @@
       (cons 'atom? (predicate atom?))
       (cons 'cons? (predicate cons?))
       (cons 'eq? (predicate eq?))
-      (cons 'apply apply))))
+      (cons 'apply apply)
+      (cons '+ +)
+      (cons '- -))))
 
 (define env* (make-parameter (make-env)))
 (define (reset) (env* (make-env)))
