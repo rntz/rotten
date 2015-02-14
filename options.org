@@ -14,6 +14,10 @@ rotten-in-rotten implementation.
 * compile to a stack machine
 let's design a simple stack machine!
 
+TODO: make builtins (cons, car, cdr, etc.) not *instructions* but *functions*.
+they get pre-loaded into global environment by the VM. this simplifies the
+compiler's job.
+
 stack machine has an
 - I: instruction stream
 - E: environment stack (for local vars)
