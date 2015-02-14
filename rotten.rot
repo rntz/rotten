@@ -15,6 +15,9 @@
 (def (cdar x) (cdr (car x)))
 
 (def (list . xs) xs)
+(def (rev-append x y) (if x (rev-append (cdr x) (cons (car x) y)) y))
+(def (rev l) (rev-append l nil))
+(def (append x y) (rev-append (rev x) y))
 (def (map f x) (if x (cons (f (car x)) (map f (cdr x)))))
 (def (any test l) (if l ((fn (x) (if x x (any test (cdr l)))) (test (car l)))))
 (def (assoc k l) (any (fn (x) (if (eq? k (car x)) x)) l))
@@ -22,53 +25,8 @@
 ;;; TODO: fexprize this and see if it's shorter.
 
 
-;; metacircular evaluator
-;; env is a list of frames; a frame is a list of (name . value) pairs
-(def (eval x env)
-  (if
-    (eq? x 'ENV) env                    ;debugging magic
-    (symbol? x) (lookup x env)          ;variable
-    (atom? x) x                         ;literal
-    ;; special forms
-    (eq? (car x) 'quote) (cadr x)
-    (eq? (car x) 'fn)    (make-fn (cadr x) (cddr x) env)
-    (eq? (car x) 'if)    (eval-if (cdr x) env)
-    (eq? (car x) 'def)   (eval-def (cadr x) (cddr x) env)
-    ;; otherwise, function application
-    (apply (eval (car x) env) (map (fn (x) (eval x env)) (cdr x)))))
-
-(def (lookup name env) (cdr (any (fn (x) (assoc name x)) env)))
-
-(def (make-fn params body env)
-  (fn args (eval-body body (cons (make-frame params args) env))))
-
-(def (make-frame params args)
-  (if (symbol? params) (list (cons params args))
-       params          (cons (cons (car params) (car args))
-                         (make-frame (cdr params) (cdr args)))))
-
-(def (eval-body body env)
-  (def x (eval (car body) env))
-  (if (cdr body) (eval-body (cdr body) env) x))
-
-(def (eval-if conds env)
-  (if (cdr conds)
-    (if (eval (car conds) env) (eval (cadr conds) env)
-      (eval-if (cddr conds) env))
-    (eval (car conds) env)))
-
-(def (eval-def target body env)
-  (def x (if (cons? target)
-           ;; defining a function
-           (cons (car target) (make-fn (cdr target) body env))
-           ;; defining a value
-           (cons target (eval-body body env))))
-  (set-car! env (cons x (car env)))
-  (cdr x))
-
-
-;; environment
-(def env
+;; global environment. (car globals) is an assoc-list.
+(def globals
   (list
     (list
       (cons 'nil  nil)
@@ -81,8 +39,50 @@
       (cons 'atom? atom?)
       (cons 'cons? cons?)
       (cons 'eq? eq?)
-      (cons 'apply apply))))
+      (cons 'apply apply)
+      (cons '+ +)
+      (cons '- -))))
 
-(def (e x) (eval x env))
+
+;; metacircular evaluator
+;; env is an assoc-list.
+(def (eval x env)
+  (if
+    (symbol? x) (lookup x env)          ;variable
+    (atom? x) x                         ;literal
+    ;; special forms
+    (eq? (car x) 'quote) (cadr x)
+    (eq? (car x) 'fn)    (make-fn (cadr x) (cddr x) env)
+    (eq? (car x) 'if)    (eval-if (cdr x) env)
+    (eq? (car x) 'def)   (eval-def (cadr x) (cddr x) env)
+    ;; otherwise, function application
+    (apply (eval (car x) env) (map (fn (x) (eval x env)) (cdr x)))))
 
-;; compiler to... something
+(def (lookup name env) (cdr (assoc name (append env (car globals)))))
+
+(def (make-fn params body env)
+  (fn args (eval-body body (append (make-env parms args) env))))
+
+(def (make-env params args)
+  (if (symbol? params) (list (cons params args))
+    params             (cons (cons (car params) (car args))
+                         (make-env (cdr params) (cdr args)))))
+
+(def (eval-body body env)
+  ((fn (x) (if (cdr body) (eval-body (cdr body) env) x))
+    (eval (car body env))))
+
+(def (eval-if conds env)
+  (if (cdr conds)
+    (if (eval (car conds) env) (eval (cadr conds) env)
+      (eval-if (cddr conds) env))
+    (eval (car conds) env)))
+
+(def (eval-def target body env)
+  (if (cons? target)
+    ;; defining a function
+    (set-global! (car target) (make-fn (cdr target) body env))
+    ;; defining a variable
+    (set-global! target (eval (car body) env))))
+
+(def (set-global! n v) (set-car! globals (cons (cons n v) (car globals))) v)
