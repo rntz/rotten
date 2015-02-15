@@ -7,6 +7,7 @@
 (def (cdar x) (cdr (car x)))
 
 (def (list . xs) xs)
+(def (proper? l) (if (cons? l) (proper? (cdr l)) (not l)))
 
 (def (rev-append x y) (if x (rev-append (cdr x) (cons (car x) y)) y))
 (def (rev l) (rev-append l nil))
@@ -16,7 +17,7 @@
 ;; (def (any test l) (if l ((fn (x) (if x x (any test (cdr l)))) (test (car l)))))
 ;; (def (assoc k l) (any (fn (x) (if (eq? k (car x)) x)) l))
 
-(def (len- i l) (if l (len- (+ 1 i) (cdr l)) i))
+(def (len- i l) (if (cons? l) (len- (+ 1 i) (cdr l)) i))
 (def (len l) (len- 0 l))
 
 (def (index- i e l) (if l (if (eq? e (car l)) i (index- (+ 1 i) e (cdr l)))))
@@ -51,15 +52,15 @@
 (def builtins '(cons car cdr set-car! set-cdr! symbol? cons? eq? apply + -))
 
 (def (compile-args xs env accum)
-  (if xs
-    (compile-args (cdr xs) env (compile (car xs) env accum))
-    accum))
+  (if (not xs) accum
+    (compile-args (cdr xs) env (compile (car xs) env accum))))
 
 (def (var-access var ix) (if ix (list 'access ix) (list 'getglobal var)))
 
 (def (fn-closure params body env)
-  ;; FIXME: need to add a "return"
-  (cons 'closure (compile-prog body (append (params-env params) env))))
+  ;; produces (closure ARITY HAS-REST-PARAM CODE)
+  (list 'closure (len params) (not (proper? params))
+    (compile-prog body (append (params-env params) env))))
 
 (def (params-env ps)
   (if (cons? ps) (cons (car ps) (params-env (cdr ps)))
@@ -69,7 +70,7 @@
   (if (cdr conds)
     (cons (list 'if
             (compile (cadr conds) env '())
-            (compile-if (cddr conds env '())))
+            (compile-if (cddr conds) env '()))
       (compile (car conds) env accum))
     (cons (list 'push (car conds)) accum)))
 
