@@ -1,6 +1,6 @@
 #lang racket
 
-(require (only-in racket define make-parameter) (prefix-in racket: racket))
+(require (prefix-in racket: racket) (only-in racket define))
 (require (except-in r5rs define eval))
 
 (define nil '())
@@ -16,8 +16,8 @@
 
 
 ;; Metacircular evaluator
-;; env is a list of frames; a frame is a list of (name . value) pairs
-(define (eval x [env (env*)])
+;; env is an assoc list
+(define (eval x [env '()])
   (cond
     ((symbol? x) (lookup x env))      ;variable
     ((atom? x) x)                     ;literal
@@ -30,22 +30,21 @@
     (#t (apply (eval (car x) env)
           (map (lambda (x) (eval x env)) (cdr x))))))
 
-(define (any f l) (and (cons? l) (or (f (car l)) (any f (cdr l)))))
 (define (lookup name env)
-  (let ((x (any (lambda (x) (assoc name x)) env)))
+  (let ((x (or (assoc name env) (assoc name globals))))
     (if x (cdr x)
       (error (format "sorry, no such variable: ~v" name)))))
 
 (define (make-fn params body env)
-  (lambda args (eval-body body (cons (make-frame params args) env))))
+  (lambda args (eval-body body (append (make-env params args) env))))
 
-(define (make-frame params args)
+(define (make-env params args)
   (cond
     ((symbol? params) (list (cons params args)))
     ((cons? params)
       (if (cons? args)
         (cons (cons (car params) (car args))
-          (make-frame (cdr params) (cdr args)))
+          (make-env (cdr params) (cdr args)))
         (error (format "parameter mismatch: ~a doesn't match ~a" params args))))
     ((true? args) (error (format "unused arguments: ~a" args)))
     (#t nil)))
@@ -70,7 +69,7 @@
       (cons (car target) (make-fn (cdr target) body env))
       ;; defining a value
       (cons target (eval-body body env))))
-  (set-car! env (cons x (car env)))
+  (set! globals (cons x globals))
   (cdr x))
 
 ;; Converts racket's #t/#f into rotten t/nil.
@@ -79,26 +78,25 @@
     (if (apply x args) 't nil)))
 
 
-;; Base environment
-(define (make-env)
+;; Global environment
+(define (make-globals)
   (list
-    (list
-      (cons 'nil '())
-      (cons 'cons cons)
-      (cons 'car (lambda (x) (if (nil? x) '() (mcar x))))
-      (cons 'cdr (lambda (x) (if (nil? x) '() (mcdr x))))
-      (cons 'set-car! (lambda (x y) (set-car! x y) '()))
-      (cons 'set-cdr! (lambda (x y) (set-cdr! x y) '()))
-      (cons 'symbol? (predicate symbol?))
-      (cons 'atom? (predicate atom?))
-      (cons 'cons? (predicate cons?))
-      (cons 'eq? (predicate eq?))
-      (cons 'apply apply)
-      (cons '+ +)
-      (cons '- -))))
+    (cons 'nil '())
+    (cons 'cons cons)
+    (cons 'car (lambda (x) (if (nil? x) '() (mcar x))))
+    (cons 'cdr (lambda (x) (if (nil? x) '() (mcdr x))))
+    (cons 'set-car! (lambda (x y) (set-car! x y) '()))
+    (cons 'set-cdr! (lambda (x y) (set-cdr! x y) '()))
+    (cons 'symbol? (predicate symbol?))
+    (cons 'atom? (predicate atom?))
+    (cons 'cons? (predicate cons?))
+    (cons 'eq? (predicate eq?))
+    (cons 'apply apply)
+    (cons '+ +)
+    (cons '- -)))
 
-(define env* (make-parameter (make-env)))
-(define (reset) (env* (make-env)))
+(define globals (make-globals))
+(define (reset) (set! globals (make-globals)))
 
 
 ;; Convenience tools
@@ -109,7 +107,7 @@
         (loop (cons x acc))))))
 
 (define (read-file filename) (call-with-input-file filename read-all))
-(define (load-file filename [env (env*)]) (eval-body (read-file filename) env))
+(define (load-file filename) (eval-body (read-file filename) '()))
 
 (define (reload) (reset) (load-file "rotten.rot"))
 
@@ -148,4 +146,6 @@
   (check-eval '(a) ((fn (x) (cons x nil)) 'a))
   (check-eval '(a) ((fn (x y) (cons x nil)) 'a 'b))
   (check-eval '(a . b) ((fn (x y) (cons x y)) 'a 'b))
+
+  ;; TODO: reload & test inner eval.
   )
