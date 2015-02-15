@@ -1,5 +1,7 @@
 #lang racket
 
+(provide (all-defined-out))             ;todo: fix this
+
 ;;; A simple "virtual machine", based mostly on the Categorical Abstract Machine
 ;;; (CAM). See http://gallium.inria.fr/~xleroy/talks/zam-kazam05.pdf
 ;;; TODO: better reference link, that one is pretty brief
@@ -12,8 +14,8 @@
 (struct closure (arity has-rest-param? code env) #:transparent)
 (struct cont (instrs env) #:transparent)
 
-(define globals (make-hash-table))
-(define (reset) (set! globals (make-hash-table)))
+(define globals (make-hash))
+(define (reset) (set! globals (make-hash)))
 
 (define (run instrs data env) (car (run- instrs data env)))
 (define (run-body instrs data env) (run- instrs data env) (void))
