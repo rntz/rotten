@@ -1,27 +1,37 @@
 #lang racket
 
 (provide (all-defined-out))             ;todo: fix this
+(require (except-in "rotten.rkt" true? globals make-globals reset)) ;fixme
 
-;;; A simple "virtual machine", based mostly on the Categorical Abstract Machine
-;;; (CAM). See http://gallium.inria.fr/~xleroy/talks/zam-kazam05.pdf
+;;; A simple "virtual machine", based loosely on the Categorical Abstract
+;;; Machine (CAM). See http://gallium.inria.fr/~xleroy/talks/zam-kazam05.pdf
 ;;; TODO: better reference link, that one is pretty brief
-
-(define-syntax-rule (with-values generator-expr receiver)
-  (call-with-values (lambda () generator-expr) receiver))
 
 (define (true? x) (not (null? x)))
 
 (struct closure (arity has-rest-param? code env) #:transparent)
 (struct cont (instrs env) #:transparent)
 
-(define globals (make-hash))
-(define (reset) (set! globals (make-hash)))
+;; VM globals, pre-populated with builtins
+(define ((check-null f) x) (if (null? x) '() (f x)))
+(define ((nulled f) . args) (apply f args) '())
+(define ((pred p) . args) (if (apply p args) 't '()))
+
+(define (make-globals)
+  `#hash((apply . apply)
+    (cons . ,mcons) (car . (check-null mcar)) (cdr . ,(check-null mcdr))
+    (set-car! . ,(nulled set-mcar!)) (set-cdr! . ,(nulled set-mcdr!))
+    (symbol? . ,(pred symbol?)) (cons? . (pred? mpair?)) (eq? . ,(pred eq?))
+    (+ . ,+) (- . ,-)))
+
+(define globals (make-globals))
+(define (reset) (set! globals (make-globals)))
 
 (define (run instrs data env) (car (run- instrs data env)))
 (define (run-body instrs data env) (run- instrs data env) (void))
 (define (run- instrs data env)
-  (unless (done? instrs data env) data
-    (with-values (step instrs data env) run)))
+  (if (done? instrs data env) data
+    (call-with-values (lambda () (step instrs data env)) run-)))
 
 ;;; we're done if we have no instructions left and <= 1 value on the stack
 ;;; (either 1 value, the value to return; or none, if we were eval'ing for
@@ -46,19 +56,24 @@
     (push! (apply f (reverse (for/list ([_ nargs]) (pop!))))))
 
   (define (call! func args)
-    (define num-args (length args))
-    (match-define (closure f-arity f-has-rest-param f-code f-env) func)
-    ;; check fn arity matches number of arguments
-    (unless ((if f-has-rest-param <= =) num-args f-arity)
-      ;; TODO: better error message
-      (error "wrong number of arguments to function"))
-    ;; munge arguments for rest parameter
-    (when f-has-rest-param
-      (set! args (append (take f-arity args) (list (drop f-arity args)))))
-    ;; perform the call
-    (set! data (cons (cont instrs env) data))
-    (set! instrs f-code)
-    (set! env (append args f-env)))
+    (match func
+      ['apply
+        (match-define `(,func ,args) args)
+        (call! func (sequence->list args))]
+      [(? procedure?) (push! (apply func args))]
+      [(closure f-arity f-has-rest-param f-code f-env)
+        (define num-args (length args))
+        ;; check fn arity matches number of arguments
+        (unless ((if f-has-rest-param <= =) num-args f-arity)
+          ;; TODO: better error message
+          (error "wrong number of arguments to function"))
+        ;; munge arguments for rest parameter
+        (when f-has-rest-param
+          (set! args (append (take args f-arity) (list (drop args f-arity)))))
+        ;; perform the call
+        (set! data (cons (cont instrs env) data))
+        (set! instrs f-code)
+        (set! env (append args f-env))]))
 
   ;; ----- instruction dispatch -----
   (match i
@@ -69,8 +84,8 @@
       (push! (closure arity (true? has-rest-param) code env))]
     [`(call ,n)
       ;; NB. use of 'reverse puts arguments in the right order.
-      (match-define (cons f args) (reverse (take (+ 1 n) data)))
-      (set! data (drop (+ 1 n) data))
+      (match-define (cons f args) (reverse (take data (+ 1 n))))
+      (set! data (drop data (+ 1 n)))
       (call! f args)]
     [`(if ,thn-code ,els-code)
       (define code (if (true? (pop!)) thn-code els-code))
@@ -81,18 +96,5 @@
       (set! instrs code)]
     ;; global environment
     [`(get-global ,name) (push! (hash-ref globals name))]
-    [`(set-global ,name) (hash-set! globals (pop!))]
-    ;; builtin functions
-    ['cons        (builtin! 2 mcons)]
-    ['car         (builtin! 1 (lambda (x) (if (null? x) '() (mcar x))))]
-    ['cdr         (builtin! 1 (lambda (x) (if (null? x) '() (mcdr x))))]
-    ['set-car!    (builtin! 2 (lambda (x y) (set-mcar! x y) '()))]
-    ['set-cdr!    (builtin! 2 (lambda (x y) (set-mcdr! x y) '()))]
-    ['symbol?     (builtin! 1 (lambda (x) (if (symbol? x) 't '())))]
-    ['cons?       (builtin! 1 (lambda (x) (if (mpair? x) 't '())))]
-    ['eq?         (builtin! 2 (lambda (x y) (if (eq? x y) 't '())))]
-    ['apply
-      (define args (pop!))
-      (define func (pop!))
-      (call! func args)])
+    [`(set-global ,name) (hash-set! globals (pop!))])
   (values instrs data env))

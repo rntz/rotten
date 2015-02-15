@@ -1,5 +1,6 @@
 #lang racket
 
+(provide (all-defined-out))             ;FIXME
 (require (prefix-in racket: racket) (only-in racket define))
 (require (except-in r5rs define eval))
 

@@ -43,13 +43,8 @@
     (eq? (car x) 'fn)    (cons (fn-closure (cadr x) (cddr x) env) accum)
     (eq? (car x) 'if)    (compile-if (cdr x) env accum)
     (eq? (car x) 'def)   (compile-def (cadr x) (cddr x) env accum)
-    ;; builtin functions
-    ;; FIXME: need to check argument length!
-    (index (car x) builtins) (cons (car x) (compile-args (cdr x) env accum))
     ;; otherwise, function application
     (cons (list 'call (len (cdr x))) (compile-args x env accum))))
-
-(def builtins '(cons car cdr set-car! set-cdr! symbol? cons? eq? apply + -))
 
 (def (compile-args xs env accum)
   (if (not xs) accum
