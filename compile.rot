@@ -55,7 +55,7 @@
   (if (not xs) accum
     (compile-args (cdr xs) env (compile (car xs) env accum))))
 
-(def (var-access var ix) (if ix (list 'access ix) (list 'getglobal var)))
+(def (var-access var ix) (if ix (list 'access ix) (list 'get-global var)))
 
 (def (fn-closure params body env)
   ;; produces (closure ARITY HAS-REST-PARAM CODE)
@@ -77,7 +77,7 @@
 (def (compile-def target body env accum)
   (if (cons? target)
     ;; defining a function
-    (cons (list 'setglobal (car target))
+    (cons (list 'set-global (car target))
       (cons (fn-closure (cdr target) body env) accum))
     ;; defining a variable
-    (cons (list 'setglobal target) (compile (car body) env accum))))
+    (cons (list 'set-global target) (compile (car body) env accum))))
