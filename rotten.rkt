@@ -9,10 +9,15 @@
 (define cons? pair?)
 (define (atom? x) (not (cons? x)))
 
-(define (mutify x)
-  (if (racket:pair? x)
-    (cons (mutify (racket:car x)) (mutify (racket:cdr x)))
-    x))
+;; turns pairs to mpairs
+(define (mify x)
+  (if (not (racket:pair? x)) x
+    (cons (mify (racket:car x)) (mify (racket:cdr x)))))
+
+;; turns mpairs to pairs
+(define (rify x)
+  (if (not (pair? x)) x
+    (racket:cons (rify (car x)) (rify (cdr x)))))
 
 
 ;; Metacircular evaluator
@@ -117,7 +122,7 @@
   (require rackunit)
 
   (define-syntax-rule (check-eval result src)
-    (check-equal? (mutify result) (eval (mutify 'src))))
+    (check-equal? (mify result) (eval (mify 'src))))
 
   (define-syntax-rule (check-t src) (check-eval 't src))
   (define-syntax-rule (check-nil src) (check-eval '() src))
