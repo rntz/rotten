@@ -1,24 +1,20 @@
-TODO: write rotten->{clojure,scheme,racket} compiler in rotten
+* TODOs
+deal with the mify/rify problem in the VM.
 
-It actually doesn't matter much how difficult it is to implement rotten in
-clojure/racket.
+* design questions
+** recursive VM?
+should I drop the whole continuation thing, and just have the VM recursively
+call itself? this would simplify 'apply as well.
 
-It matters how difficult it is to implement rotten in rotten.
+OTOH, it makes it feel less like a "real" virtual machine, where recursively
+calling the VM is generally considered bad. (why is it bad again? I guess if you
+need to do control stack manipulation...)
 
-So I should start by thinking about the semantics of rotten, and a mock
-rotten-in-rotten implementation.
+OTOH, it doesn't shop up in the *interface* to the VM, which is what I care
+about most.
 
-* metacircularly evaluate rotten
-* compile rotten to clojure
-* compile rotten to racket
-* compile to a stack machine
-let's design a simple stack machine!
-
-TODO: make builtins (cons, car, cdr, etc.) not *instructions* but *functions*.
-they get pre-loaded into global environment by the VM. this simplifies the
-compiler's job.
-
-stack machine has an
+* stack machine design
+three registers/components:
 - I: instruction stream
 - E: environment stack (for local vars)
 - D: data stack (for arguments, return values, and return frames)
@@ -38,13 +34,16 @@ instructions:
 - (if THEN-INSTRS ELSE-INSTRS):
   pops D. if result is true, proceeds to THEN-INSTRS; otherwise, proceeds to ELSE-INSTRS.
 
-- cons, car, cdr, set-car!, set-cdr!, symbol?, cons?, eq?:
-  pop appropriate # of arguments, apply builtin function, push result.
-
-- apply: pops an argument-list and a function from D, then applies the fn to the args.
-
 - (get-global SYMBOL): pushes the value of SYMBOL in global environment onto D.
 - (set-global SYMBOL): sets SYMBOL to (top D) in global environment.
   does NOT pop D - so that its "return value" is what it has set SYMBOL to.
 
-how do I implement assignables?
+builtin functions are implemented using a cheap trick. there are no special
+instructions for them. rather, all of them except 'apply are just procedures in
+the underlying implementation language (Racket). when a racket procedure is
+"call"ed in the VM, the VM just calls it in the host language.
+
+the 'apply builtin is different. (TODO: explain why it needs to be different to
+avoid recursively entering VM.) when the symbol 'apply is called, the VM
+interprets it specially. in the global environment, 'apply is bound to 'apply,
+which makes this work "transparently".
