@@ -6,8 +6,8 @@
   (prefix-in vm: "vm.rkt"))
 
 (define compiler-src (read-file "compile.rot"))
-(define (load-evaler) (i:load-file "rotten.rot"))
-(define (load-compiler) (i:load-file "compile.rot"))
+(define (load-evaler) (i:load-file "rotten.rot") (void))
+(define (load-compiler) (i:load-file "compile.rot") (void))
 
 (i:reset)
 (load-compiler)
@@ -22,6 +22,9 @@
     (lambda ()
       (for ([x code]) (pretty-write x)))))
 
+(define-syntax-rule (silent e)
+  (with-output-to-file "/dev/null" #:exists 'append (lambda () e)))
+
 ;; TODO: functon for bootstrapping the VM by loading a compiled file containing
 ;; the compiler.
 ;;
@@ -29,11 +32,18 @@
 ;; TODO: function for running a repl in a bootstrapped VM.
 (define (vm-bootstrap filename)
   (vm:reset)
-  (define code (rify (read-file filename)))
+  (define code (read-file filename))
   (vm:run-body code))
 
-(define (vm-compile src)
-  (vm:run `((get-global compile-exp) (push ,(mify src)) (call 1))))
+(define (boot) (silent (vm-bootstrap "compile.rotc")))
+
+(define (vm-compile src) (vm:run (vm-compile-instrs src)))
+(define (vm-compile-instrs src)
+  (mify `((get-global compile-exp) (push ,src) (call 1))))
+
+(define (vm-eval e) (vm:run (silent (vm-compile e))))
+
+;; try: (silent (vm-eval '((fn (x) x) 2)))
 
 ;;; FIXME: when I pass code off to vm-run, I've 'rify-ed it. BUT this makes
 ;;; (push (x y z)) *wrong*, since it pushes an *immutable* cons rather than a

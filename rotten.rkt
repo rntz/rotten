@@ -1,6 +1,10 @@
 #lang racket
 
-(provide (all-defined-out))             ;FIXME
+(provide
+  ;; TODO: break some of these out into util.rkt file?
+  eval eval-body globals make-globals reset
+  mify rify reload read-all read-file load-file)
+
 (require (prefix-in racket: racket) (only-in racket define))
 (require (except-in r5rs define eval))
 
