@@ -44,7 +44,7 @@ pop
     ((access 1)))))
 (set-global rev-append)
 pop
-(closure 1 () ((get-global rev-append) (access 0) (get-global nil) (call 2)))
+(closure 1 () ((get-global rev-append) (access 0) (push ()) (call 2)))
 (set-global rev)
 pop
 (closure
