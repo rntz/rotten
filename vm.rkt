@@ -9,6 +9,9 @@
 
 (define (true? x) (not (null? x)))
 
+;;; FIXME: all uses of closure must be consistent wrt whether has-rest-param? is
+;;; a racket bool (#t or #f) or a rotten bool ('t or '()).
+;;; (use contracts?)
 (struct closure (arity has-rest-param? code env) #:transparent)
 (struct cont (instrs env) #:transparent)
 
@@ -23,14 +26,15 @@
       (set-cdr! . ,(lambda (x y) (set-mcdr! x y) '()))
       (symbol? . ,(lambda (x) (if (symbol? x) 't '())))
       (cons? . ,(lambda (x) (if (mpair? x) 't '())))
+      (atom? . ,(lambda (x) (if (mpair? x) '() 't)))
       (eq? . ,(lambda (x y) (if (eq? x y) 't '())))
       (+ . ,+) (- . ,-))))
 
 (define globals (make-globals))
 (define (reset) (set! globals (make-globals)))
 
-(define (run instrs data env) (car (run- instrs data env)))
-(define (run-body instrs data env) (run- instrs data env) (void))
+(define (run instrs [data '()] [env '()]) (car (run- instrs data env)))
+(define (run-body instrs [data '()] [env '()]) (run- instrs data env) (void))
 (define (run- instrs data env)
   (if (done? instrs data env) data
     (call-with-values (lambda () (step instrs data env)) run-)))

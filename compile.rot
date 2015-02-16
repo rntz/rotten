@@ -21,7 +21,9 @@
 
 
 ;; env is a list of local variables
-(def (compile-prog body env) (rev (compile-body body env '())))
+(def (compile-exp exp) (rev (compile exp '() '())))
+(def (compile-program body) (rev (compile-body body '() '())))
+
 (def (compile-body body env accum)
   ((if (cdr body)
      (fn (x) (compile-body (cdr body) env (cons 'pop x)))
@@ -51,7 +53,7 @@
 (def (fn-closure params body env)
   ;; produces (closure ARITY HAS-REST-PARAM CODE)
   (list 'closure (len params) (not (proper? params))
-    (compile-prog body (append (params-env params) env))))
+    (rev (compile-body body (append (params-env params) env) '()))))
 
 (def (params-env ps)
   (if (cons? ps) (cons (car ps) (params-env (cdr ps)))

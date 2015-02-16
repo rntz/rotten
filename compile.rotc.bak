@@ -107,28 +107,16 @@ pop
 (set-global index)
 pop
 (closure
- 1
- ()
- ((get-global rev)
-  (get-global compile)
-  (access 0)
-  (push ())
-  (push ())
-  (call 3)
-  (call 1)))
-(set-global compile-exp)
-pop
-(closure
- 1
+ 2
  ()
  ((get-global rev)
   (get-global compile-body)
   (access 0)
-  (push ())
+  (access 1)
   (push ())
   (call 3)
   (call 1)))
-(set-global compile-program)
+(set-global compile-prog)
 pop
 (closure
  3
@@ -308,8 +296,7 @@ pop
   (access 0)
   (call 1)
   (call 1)
-  (get-global rev)
-  (get-global compile-body)
+  (get-global compile-prog)
   (access 1)
   (get-global append)
   (get-global params-env)
@@ -317,9 +304,7 @@ pop
   (call 1)
   (access 2)
   (call 2)
-  (push ())
-  (call 3)
-  (call 1)
+  (call 2)
   (call 4)))
 (set-global fn-closure)
 pop
