@@ -13,16 +13,18 @@
 (struct cont (instrs env) #:transparent)
 
 ;; VM globals, pre-populated with builtins
-(define ((check-null f) x) (if (null? x) '() (f x)))
-(define ((nulled f) . args) (apply f args) '())
-(define ((pred p) . args) (if (apply p args) 't '()))
-
 (define (make-globals)
-  `#hash((apply . apply)
-    (cons . ,mcons) (car . (check-null mcar)) (cdr . ,(check-null mcdr))
-    (set-car! . ,(nulled set-mcar!)) (set-cdr! . ,(nulled set-mcdr!))
-    (symbol? . ,(pred symbol?)) (cons? . (pred? mpair?)) (eq? . ,(pred eq?))
-    (+ . ,+) (- . ,-)))
+  (make-hash
+    `((apply . apply) ;; no unquote; apply is special. see call! in step-instr.
+      (cons . ,mcons)
+      (car . ,(lambda (x) (if (null? x) '() (mcar x))))
+      (cdr . ,(lambda (x) (if (null? x) '() (mcdr x))))
+      (set-car! . ,(lambda (x y) (set-mcar! x y) '()))
+      (set-cdr! . ,(lambda (x y) (set-mcdr! x y) '()))
+      (symbol? . ,(lambda (x) (if (symbol? x) 't '())))
+      (cons? . ,(lambda (x) (if (mpair? x) 't '())))
+      (eq? . ,(lambda (x y) (if (eq? x y) 't '())))
+      (+ . ,+) (- . ,-))))
 
 (define globals (make-globals))
 (define (reset) (set! globals (make-globals)))
@@ -50,6 +52,8 @@
   (values instrs (cons value data) env))
 
 (define (step-instr i instrs data env)
+  (displayln (format "INSTR ~a" i))
+  (displayln (format "  STK ~a" data))
   (define (pop!) (let ([x (car data)]) (set! data (cdr data)) x))
   (define (push! x) (set! data (cons x data)))
   (define (builtin! nargs f)
@@ -96,5 +100,20 @@
       (set! instrs code)]
     ;; global environment
     [`(get-global ,name) (push! (hash-ref globals name))]
-    [`(set-global ,name) (hash-set! globals (pop!))])
+    [`(set-global ,name) (hash-set! globals name (car data))])
   (values instrs data env))
+
+(module+ test
+  ;; how to use from the repl:
+  ;; > (require racket/enter)
+  ;; > (enter! (submod "vm.rkt" test))
+
+  (define compiler-src (read-file "compile.rot"))
+  (define (load-eval) (reset) (load-file "rotten.rot"))
+  (define (load-compile) (reset) (load-file "compile.rot"))
+
+  (load-compile)
+  (define (compile src) (rify (eval (mify `(compile-prog ',src '())))))
+  (define compiler-code (compile compiler-src))
+
+  (define (test) (run- compiler-code '() '())))

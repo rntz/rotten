@@ -43,7 +43,8 @@ instructions:
 
 - apply: pops an argument-list and a function from D, then applies the fn to the args.
 
-- (set-global SYMBOL): sets SYMBOL to (pop D) in global environment.
 - (get-global SYMBOL): pushes the value of SYMBOL in global environment onto D.
+- (set-global SYMBOL): sets SYMBOL to (top D) in global environment.
+  does NOT pop D - so that its "return value" is what it has set SYMBOL to.
 
 how do I implement assignables?
