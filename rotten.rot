@@ -28,7 +28,6 @@
 ;; global environment; an assoc-list.
 (def globals
   (list
-    (cons 'nil  nil)
     (cons 'cons cons)
     (cons 'car car)
     (cons 'cdr cdr)

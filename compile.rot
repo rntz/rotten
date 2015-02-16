@@ -10,7 +10,7 @@
 (def (proper? l) (if (cons? l) (proper? (cdr l)) (not l)))
 
 (def (rev-append x y) (if x (rev-append (cdr x) (cons (car x) y)) y))
-(def (rev l) (rev-append l nil))
+(def (rev l) (rev-append l ()))
 (def (append x y) (rev-append (rev x) y))
 
 (def (len- i l) (if (cons? l) (len- (+ 1 i) (cdr l)) i))

@@ -87,7 +87,6 @@
 ;; Global environment
 (define (make-globals)
   (list
-    (cons 'nil '())
     (cons 'cons cons)
     (cons 'car (lambda (x) (if (nil? x) '() (mcar x))))
     (cons 'cdr (lambda (x) (if (nil? x) '() (mcdr x))))
