@@ -25,23 +25,22 @@
 ;;; TODO: fexprize this and see if it's shorter.
 
 
-;; global environment. (car globals) is an assoc-list.
+;; global environment; an assoc-list.
 (def globals
   (list
-    (list
-      (cons 'nil  nil)
-      (cons 'cons cons)
-      (cons 'car car)
-      (cons 'cdr cdr)
-      (cons 'set-car! set-car!)
-      (cons 'set-cdr! set-cdr!)
-      (cons 'symbol? symbol?)
-      (cons 'atom? atom?)
-      (cons 'cons? cons?)
-      (cons 'eq? eq?)
-      (cons 'apply apply)
-      (cons '+ +)
-      (cons '- -))))
+    (cons 'nil  nil)
+    (cons 'cons cons)
+    (cons 'car car)
+    (cons 'cdr cdr)
+    (cons 'set-car! set-car!)
+    (cons 'set-cdr! set-cdr!)
+    (cons 'symbol? symbol?)
+    (cons 'atom? atom?)
+    (cons 'cons? cons?)
+    (cons 'eq? eq?)
+    (cons 'apply apply)
+    (cons '+ +)
+    (cons '- -)))
 
 
 ;; metacircular evaluator
@@ -85,4 +84,6 @@
     ;; defining a variable
     (set-global! target (eval (car body) env))))
 
-(def (set-global! n v) (set-car! globals (cons (cons n v) (car globals))) v)
+(def (set-global! n v)
+  (def globals (cons (cons n v) (car globals)))
+  v)
