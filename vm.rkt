@@ -102,18 +102,3 @@
     [`(get-global ,name) (push! (hash-ref globals name))]
     [`(set-global ,name) (hash-set! globals name (car data))])
   (values instrs data env))
-
-(module+ test
-  ;; how to use from the repl:
-  ;; > (require racket/enter)
-  ;; > (enter! (submod "vm.rkt" test))
-
-  (define compiler-src (read-file "compile.rot"))
-  (define (load-eval) (reset) (load-file "rotten.rot"))
-  (define (load-compile) (reset) (load-file "compile.rot"))
-
-  (load-compile)
-  (define (compile src) (rify (eval (mify `(compile-prog ',src '())))))
-  (define compiler-code (compile compiler-src))
-
-  (define (test) (run- compiler-code '() '())))
