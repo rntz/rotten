@@ -58,12 +58,12 @@
       ps         (list ps)))
 
 (def (compile-if conds env accum)
-  (if (cdr conds)
+  (if (not (cdr conds))
+    (compile (car conds) env accum)
     (cons (list 'if
-            (compile (cadr conds) env '())
-            (compile-if (cddr conds) env '()))
-      (compile (car conds) env accum))
-    (cons (list 'push (car conds)) accum)))
+            (rev (compile (cadr conds) env '()))
+            (rev (compile-if (cddr conds) env '())))
+      (compile (car conds) env accum))))
 
 (def (compile-def target body env accum)
   (if (cons? target)
