@@ -70,8 +70,8 @@
 
 (define/contract (step-instr i instrs data env)
   (instr/c mlist? list? env/c . -> . (values mlist? list? env/c))
-  (displayln (format "INSTR ~a" i))
-  (displayln (format "  STK ~a" data))
+  ;; (displayln (format "INSTR ~a" i))
+  ;; (displayln (format "  STK ~a" data))
   ;; (displayln (format "  ENV ~a" env))
   (define (pop!) (let ([x (car data)]) (set! data (cdr data)) x))
   (define (push! x) (set! data (cons x data)))
