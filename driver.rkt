@@ -3,7 +3,8 @@
 (require
   (only-in "rotten.rkt" read-file rify mify)
   (prefix-in i: "rotten.rkt")
-  (prefix-in vm: "vm.rkt"))
+  (prefix-in vm: "vm.rkt")
+  (prefix-in scheme: r5rs))
 
 (define compiler-src (read-file "compile.rot"))
 (define (load-evaler) (i:load-file "rotten.rot") (void))
@@ -42,6 +43,15 @@
   (mify `((get-global compile-exp) (push ,src) (call 1))))
 
 (define (vm-eval e) (vm:run (silent (vm-compile e))))
+
+(define (vm-repl)
+  (display "ROTT> ")
+  (define src (scheme:read))
+  (unless (eq? '(unquote quit) src)
+    (with-handlers ([(lambda (_) #t)
+                      (lambda (e) (printf "~a\n" e))])
+      (printf "~a\n" (vm-eval src)))
+    (vm-repl)))
 
 ;; try: (silent (vm-eval '((fn (x) x) 2)))
 
