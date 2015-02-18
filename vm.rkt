@@ -101,7 +101,6 @@
         (set! env (append args f-env))]))
 
   ;; ----- instruction dispatch -----
-  (when (pair? i) (error "what the hell, got a pair")) ;FIXME
   (match (if (mpair? i) (sequence->list i) i)
     [`(push ,x) (push! x)]
     [`pop (pop!)]
