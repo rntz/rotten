@@ -1,17 +1,11 @@
 {closure 1 () {{access 0} {if {{push ()}} {{push t}}}}}
 {set-global not}
 pop
-{closure 1 () {{get-global car} {get-global car} {access 0} {call 1} {call 1}}}
-{set-global caar}
-pop
 {closure 1 () {{get-global car} {get-global cdr} {access 0} {call 1} {call 1}}}
 {set-global cadr}
 pop
 {closure 1 () {{get-global cdr} {get-global cdr} {access 0} {call 1} {call 1}}}
 {set-global cddr}
-pop
-{closure 1 () {{get-global cdr} {get-global car} {access 0} {call 1} {call 1}}}
-{set-global cdar}
 pop
 {closure 0 t {{access 0}}}
 {set-global list}

@@ -1,10 +1,8 @@
 ;; -*- mode: scheme -*-
 ;; bootstrapping
 (def (not x) (if x () 't))
-(def (caar x) (car (car x)))
 (def (cadr x) (car (cdr x)))
 (def (cddr x) (cdr (cdr x)))
-(def (cdar x) (cdr (car x)))
 
 (def (list . xs) xs)
 (def (proper? l) (if (cons? l) (proper? (cdr l)) (not l)))
