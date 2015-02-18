@@ -31,12 +31,13 @@
 ;;
 ;; TODO: function for evaluating source in a bootstrapped VM.
 ;; TODO: function for running a repl in a bootstrapped VM.
-(define (vm-bootstrap filename)
+(define (boot [filename "compile.rotc"])
+  (displayln "VM resetting")
   (vm:reset)
-  (define code (read-file filename))
-  (vm:run-body code))
-
-(define (boot) (silent (vm-bootstrap "compile.rotc")))
+  (printf "VM loading ~a\n" filename)
+  (silent (vm:run-body (read-file filename)))
+  (displayln "VM loading contents of \"compiler.rot\" as 'compiler-src")
+  (hash-set! vm:globals 'compiler-src compiler-src))
 
 (define (vm-compile src) (vm:run (vm-compile-instrs src)))
 (define (vm-compile-instrs src)
@@ -45,13 +46,16 @@
 (define (vm-eval e) (vm:run (silent (vm-compile e))))
 
 (define (vm-repl)
-  (display "ROTT> ")
+  (display "ROTTEN> ")
   (define src (scheme:read))
-  (unless (eq? '(unquote quit) src)
+  (unless (equal? '(unquote quit) (rify src))
     (with-handlers ([(lambda (_) #t)
                       (lambda (e) (printf "~a\n" e))])
       (printf "~a\n" (vm-eval src)))
     (vm-repl)))
+
+(define (vm-extract-compiler var filename)
+  (write-file filename (hash-ref vm:globals var)))
 
 ;; try: (silent (vm-eval '((fn (x) x) 2)))
 
