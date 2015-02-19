@@ -20,6 +20,10 @@ Thompson's
 
 There are other files in the repository but they're not really necessary.
 
+# Trusting Trust
+
+Soon to come.
+
 # Caveat emptor
 This project is an exercise in golfing. Therefore, everything in it is horribly,
 horribly bad, including but not limited to:
