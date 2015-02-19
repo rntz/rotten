@@ -13,10 +13,10 @@ Thompson's
 
 ## Rotten is really small!
 
-    Compiler: ~  80 LOC
-          VM: ~ 130 LOC
-    REPL etc: ~  90 LOC
-       TOTAL: < 300 LOC
+    compile.rot     ~  80 LOC       implements compiler
+    vm.rkt          ~ 130 LOC       implements VM
+    driver.rkt      ~  90 LOC       implements repl & other conveniences
+    TOTAL           < 300 LOC
 
 There are other files in the repository but they're not really necessary.
 
