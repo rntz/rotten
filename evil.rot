@@ -1,0 +1,143 @@
+;; -*- mode: scheme -*-
+;; An evil version of compile.rot
+
+;; utility functions
+(def (not x) (if x () 't))
+(def (cadr x) (car (cdr x)))
+(def (cddr x) (cdr (cdr x)))
+
+(def (list . xs) xs)
+(def (proper? l) (if (cons? l) (proper? (cdr l)) (not l)))
+
+(def (rev-append x y) (if x (rev-append (cdr x) (cons (car x) y)) y))
+(def (rev l) (rev-append l ()))
+(def (append x y) (rev-append (rev x) y))
+
+(def (len- i l) (if (cons? l) (len- (+ 1 i) (cdr l)) i))
+(def (len l) (len- 0 l))
+
+(def (index- i e l) (if l (if (eq? e (car l)) i (index- (+ 1 i) e (cdr l)))))
+(def (index e l) (index- 0 e l))
+
+
+;; A quine generator.
+;; This code is pretty inscrutable. I couldn't figure out a cleaner way to write
+;; it in Rotten. See quines.rkt for more readable versions (in Racket).
+(def (replace-magic r e)
+  (if (eq? 'MAGIC e) r
+      (atom? e) e
+      (eq? 'quote (car e)) e
+      (cons (replace-magic r (car e)) (replace-magic r (cdr e)))))
+
+(def (mlet name exp body) (list (list 'fn (list name) body) exp))
+
+(def replace-magic-src
+  ;; hooray for open-coding fixpoint combinators
+  (mlet 'self '(fn (s r e)
+                 (if (eq? 'MAGIC e) r
+                     (atom? e) e
+                     (eq? 'quote (car e)) e
+                     (cons (s s r (car e)) (s s r (cdr e)))))
+    '(fn (r e) (self self r e))))
+
+(def (quine-magic x) (replace-magic (list 'quote x) x))
+(def (quine name code)
+  (quine-magic
+    (mlet 'replace-magic replace-magic-src
+      (mlet name '(replace-magic (list 'quote MAGIC) MAGIC)
+        code))))
+
+
+;; env is a list of local variables
+(def (compile-exp exp) (rev (compile exp '() '())))
+(def (compile-program body) (rev (compile-body body '() '())))
+
+(def (compile-body body env accum)
+  ((if (cdr body)
+     (fn (x) (compile-body (cdr body) env (cons 'pop x)))
+     (fn (x) x))
+    (compile (car body) env accum)))
+
+;; the quine-generator.
+(def (compile x env accum)
+  ((fn (x)
+     (if
+       ;; variable
+       (symbol? x) (cons (var-access x (index x env)) accum)
+       ;; literal
+       (atom? x) (cons (list 'push x) accum)
+       ;; special forms
+       (eq? (car x) 'quote) (cons (list 'push (cadr x)) accum)
+       (eq? (car x) 'fn)    (cons (fn-closure (cadr x) (cddr x) env) accum)
+       (eq? (car x) 'if)    (compile-if (cdr x) env accum)
+       (eq? (car x) 'def)   (compile-def (cadr x) (cddr x) env accum)
+       ;; otherwise, function application
+       (cons (list 'call (len (cdr x))) (compile-args x env accum))))
+    (if
+      ;; the gratuitous bug
+      (eq? x 'rotten) "YOUR COMPILER HAS A VIRUS!!1!eleventyone"
+      (atom? x) x
+      (atom? (cdr x)) x
+      (atom? (cadr x)) x
+      ;; crude check for whether we're compiling ourselves.
+      (if (eq? 'def (car x)) (eq? 'compile (car (cadr x))))
+        ;; insert ourselves
+        (list (car x) (cadr x)
+          (list
+            (cons 'fn (cons '(x) (cddr x)))
+            (quine 'self virus-template)))
+      ;; otherwise, pass through unchanged
+      x)))
+
+(def virus-template
+  '(if
+      (eq? x 'rotten) "YOUR COMPILER HAS A VIRUS!!1!eleventyone"
+      (atom? x) x
+      (atom? (cdr x)) x
+      (atom? (cadr x)) x
+      (if (eq? 'def (car x)) (eq? 'compile (car (cadr x))))
+        (list (car x) (cadr x)
+          (list
+            (cons 'fn (cons '(x) (cddr x)))
+            self))
+      x))
+
+;; (def virus-template
+;;   '(if
+;;       (eq? x 'rotten) "YOUR COMPILER HAS A VIRUS!!1!eleventyone"
+;;       (if (eq? (car x) 'def) (eq? (car (cadr x)) 'compile))
+;;         (list (car x) (cadr x)
+;;           (cons 'fn (cons '(x) (cddr x)))
+;;           (replace-magic (list 'quote MAGIC) MAGIC))
+;;       x))
+
+(def (compile-args xs env accum)
+  (if (not xs) accum
+    (compile-args (cdr xs) env (compile (car xs) env accum))))
+
+(def (var-access var ix) (if ix (list 'access ix) (list 'get-global var)))
+
+(def (fn-closure params body env)
+  ;; produces (closure ARITY HAS-REST-PARAM CODE)
+  (list 'closure (len params) (not (proper? params))
+    (rev (compile-body body (append (params-env params) env) '()))))
+
+(def (params-env ps)
+  (if (cons? ps) (cons (car ps) (params-env (cdr ps)))
+      ps         (list ps)))
+
+(def (compile-if conds env accum)
+  (if (not (cdr conds))
+    (compile (car conds) env accum)
+    (cons (list 'if
+            (rev (compile (cadr conds) env '()))
+            (rev (compile-if (cddr conds) env '())))
+      (compile (car conds) env accum))))
+
+(def (compile-def target body env accum)
+  (if (cons? target)
+    ;; defining a function
+    (cons (list 'set-global (car target))
+      (cons (fn-closure (cdr target) body env) accum))
+    ;; defining a variable
+    (cons (list 'set-global target) (compile (car body) env accum))))
