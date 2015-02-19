@@ -4,17 +4,13 @@
 (def (not x) (if x () 't))
 (def (cadr x) (car (cdr x)))
 (def (cddr x) (cdr (cdr x)))
-
 (def (list . xs) xs)
 (def (proper? l) (if (cons? l) (proper? (cdr l)) (not l)))
-
 (def (rev-append x y) (if x (rev-append (cdr x) (cons (car x) y)) y))
 (def (rev l) (rev-append l ()))
 (def (append x y) (rev-append (rev x) y))
-
 (def (len- i l) (if (cons? l) (len- (+ 1 i) (cdr l)) i))
 (def (len l) (len- 0 l))
-
 (def (index- i e l) (if l (if (eq? e (car l)) i (index- (+ 1 i) e (cdr l)))))
 (def (index e l) (index- 0 e l))
 
