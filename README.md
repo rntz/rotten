@@ -1,3 +1,24 @@
+# Rotten
+
+Rotten is a small self-hosting Lisp, designed as a vehicle for exploring Ken
+Thompson's
+[Reflections on Trusting Trust](http://cm.bell-labs.com/who/ken/trust.html).
+
+## How it works
+
+1. Rotten compiles to a simple abstract machine ("the VM").
+2. The VM is implemented in [Racket](http://www.racket-lang.org/).
+3. The compiler from Rotten to VM-code is
+   [written in Rotten](http://en.wikipedia.org/wiki/Self-hosting).
+
+## Rotten is really small!
+
+    Compiler: ~  80 LOC
+          VM: ~ 130 LOC
+    REPL etc: ~  90 LOC
+       TOTAL: < 300 LOC
+
+# Caveat emptor
 This project is an exercise in golfing. Therefore, everything in it is horribly,
 horribly bad, including but not limited to:
 
