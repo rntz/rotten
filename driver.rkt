@@ -43,15 +43,15 @@
 
 
 ;;; Manipulating the VM.
-(define (vm:load filename) (vm:run-body (read-file filename)))
-
-(define (vm:boot [filename "compile.rotc"])
+(define (boot [filename "compile.rotc"])
   (displayln "VM rebooting")
   (vm:reset)
   (printf "VM loading ~a\n" filename)
   (vm:load filename)
   (displayln "VM reading contents of \"compiler.rot\" into 'compiler-src")
   (hash-set! vm:globals 'compiler-src (read-file "compile.rot")))
+
+(define (vm:load filename) (vm:run-body (read-file filename)))
 
 (define (vm:call funcname . args)
   (vm:run (mify `((get-global ,funcname)
@@ -77,11 +77,8 @@
   (display "ROTTEN> ")
   (define exp (scheme:read))
   (unless (equal? '(unquote quit) (rify exp))
-    (with-handlers ([(lambda (_) #t)
-                      ;; FIXME: should display the error, not printf it
-                      (lambda (e) (printf "~a\n" e))])
-      (pretty-write (evaler exp))
-      (newline))
+    (with-handlers ([exn:fail? (lambda (e) (log-error (exn-message e)))])
+      (pretty-write (evaler exp)))
     (repl evaler)))
 
 (define (i:repl) (repl i:eval))
