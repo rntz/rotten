@@ -1,0 +1,34 @@
+* Intro
+Over the last two weeks, I've written a compiler for a tiny lisp language I call
+Rotten.
+
+The way Rotten works is:
+1. Rotten compiles to code for a simple VM
+2. The VM itself is implemented in Racket (racket-lang.org)
+
+The first interesting thing about Rotten is that:
+the compiler from Rotten to VM-code is written in Rotten!
+
+The second interesting thing about Rotten is how small it is:
+- compiler:  80 LOC
+-       VM: 130 LOC
+-  REPL &c:  90 LOC
+TOTAL:    < 300 LOC!
+
+* Demo
+But that's not what I'm here to talk about.
+I'm here to talk about a virus in my compiler!
+
+* REPL session
+<driver.rkt> (boot)
+;; the virtual machine has just booted up
+;; and loaded a precompiled image of the compiler
+
+<driver.rkt> (repl)
+;; Now we're running Rotten code!
+
+ROTTEN> (+ 2 2)
+ROTTEN> '(hello from rotten lisp)
+ROTTEN> (def (double x) (+ x x))
+ROTTEN> (double 10)
+ROTTEN> (compile-exp '(+ 2 2)) ;; the compiler is available at runtime
