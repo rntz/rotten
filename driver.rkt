@@ -49,14 +49,17 @@
 
 (define (vm-eval e) (vm:run (silent (vm-compile e))))
 
-(define (vm-repl)
+(define (repl-by evaler)
   (display "ROTTEN> ")
   (define src (scheme:read))
   (unless (equal? '(unquote quit) (rify src))
     (with-handlers ([(lambda (_) #t)
                       (lambda (e) (printf "~a\n" e))])
-      (printf "~a\n" (vm-eval src)))
-    (vm-repl)))
+      (printf "~a\n" (evaler src)))
+    (repl-by evaler)))
+
+(define (vm-repl) (repl-by vm-eval))
+(define (i-repl) (repl-by i:eval))
 
 (define (vm-extract-compiler var filename)
   (write-file filename (hash-ref vm:globals var)))
