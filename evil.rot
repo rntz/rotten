@@ -1,5 +1,13 @@
 ;; -*- mode: scheme -*-
 ;; An evil version of compile.rot
+;;
+;; Note that this does not itself implement the "bug" that a fully infected
+;; compiler exhibits, where 'rotten compiles to "YOUR COMPILER HAS A
+;; VIRUS!!1!eleventyone". Rather, it infects *other* compilers with this bug (in
+;; a self-propagating manner).
+;;
+;; This is because I find writing a program that generates a complicated quine
+;; to be easier than writing a complicated quine.
 
 ;; utility functions
 (def (not x) (if x () 't))
