@@ -58,58 +58,19 @@
      (fn (x) x))
     (compile (car body) env accum)))
 
-;; the quine-generator.
 (def (compile x env accum)
-  ((fn (x)
-     (if
-       ;; variable
-       (symbol? x) (cons (var-access x (index x env)) accum)
-       ;; literal
-       (atom? x) (cons (list 'push x) accum)
-       ;; special forms
-       (eq? (car x) 'quote) (cons (list 'push (cadr x)) accum)
-       (eq? (car x) 'fn)    (cons (fn-closure (cadr x) (cddr x) env) accum)
-       (eq? (car x) 'if)    (compile-if (cdr x) env accum)
-       (eq? (car x) 'def)   (compile-def (cadr x) (cddr x) env accum)
-       ;; otherwise, function application
-       (cons (list 'call (len (cdr x))) (compile-args x env accum))))
-    (if
-      ;; the gratuitous bug
-      (eq? x 'rotten) "YOUR COMPILER HAS A VIRUS!!1!eleventyone"
-      (atom? x) x
-      (atom? (cdr x)) x
-      (atom? (cadr x)) x
-      ;; crude check for whether we're compiling ourselves.
-      (if (eq? 'def (car x)) (eq? 'compile (car (cadr x))))
-        ;; insert ourselves
-        (list (car x) (cadr x)
-          (list
-            (cons 'fn (cons '(x) (cddr x)))
-            (quine 'self virus-template)))
-      ;; otherwise, pass through unchanged
-      x)))
-
-(def virus-template
-  '(if
-      (eq? x 'rotten) "YOUR COMPILER HAS A VIRUS!!1!eleventyone"
-      (atom? x) x
-      (atom? (cdr x)) x
-      (atom? (cadr x)) x
-      (if (eq? 'def (car x)) (eq? 'compile (car (cadr x))))
-        (list (car x) (cadr x)
-          (list
-            (cons 'fn (cons '(x) (cddr x)))
-            self))
-      x))
-
-;; (def virus-template
-;;   '(if
-;;       (eq? x 'rotten) "YOUR COMPILER HAS A VIRUS!!1!eleventyone"
-;;       (if (eq? (car x) 'def) (eq? (car (cadr x)) 'compile))
-;;         (list (car x) (cadr x)
-;;           (cons 'fn (cons '(x) (cddr x)))
-;;           (replace-magic (list 'quote MAGIC) MAGIC))
-;;       x))
+  (if
+    ;; variable
+    (symbol? x) (cons (var-access x (index x env)) accum)
+    ;; literal
+    (atom? x) (cons (list 'push x) accum)
+    ;; special forms
+    (eq? (car x) 'quote) (cons (list 'push (cadr x)) accum)
+    (eq? (car x) 'fn)    (cons (fn-closure (cadr x) (cddr x) env) accum)
+    (eq? (car x) 'if)    (compile-if (cdr x) env accum)
+    (eq? (car x) 'def)   (compile-def (cadr x) (cddr x) env accum)
+    ;; otherwise, function application
+    (cons (list 'call (len (cdr x))) (compile-args x env accum))))
 
 (def (compile-args xs env accum)
   (if (not xs) accum
@@ -135,9 +96,55 @@
       (compile (car conds) env accum))))
 
 (def (compile-def target body env accum)
-  (if (cons? target)
+  (if
+    ;; defining a variable
+    (atom? target)
+      (cons (list 'set-global target) (compile (car body) env accum))
+    ;; defining the compiler, infect it!
+    (eq? (car target) 'compile)
+      (compile-def 'compile (list (infect body)) env accum)
     ;; defining a function
     (cons (list 'set-global (car target))
-      (cons (fn-closure (cdr target) body env) accum))
-    ;; defining a variable
-    (cons (list 'set-global target) (compile (car body) env accum))))
+      (cons (fn-closure (cdr target) body env) accum))))
+
+
+;; The transformation we do is approximately:
+;;
+;;     (def (compile x env accum) BODY ...)
+;;
+;; --->
+;;
+;;     (def compile
+;;       ((fn (f) (fn (x env accum) (f NEWX env accum)))
+;;        (fn (x env accum) BODY ...)))
+;;
+;;     (def compile
+;;       ((fn (f g) (fn (x env accum) (f (g x) env accum)))
+;;        (fn (x env accum) BODY ...)
+;;        (fn (x) THE-FILTER)))
+;;
+;; Except that the (fn (f) ....) is actually quine-ified.
+;;
+;; This is accomplished by calling (infect '(BODY ...))
+;; which returns the quine-ified (fn (f) ...)
+;;
+;; Again, I apologize for the inscrutableness of this code.
+(def (infect body)
+  (list virus (cons 'fn (cons '(x env accum) body))))
+
+(def virus
+  (quine 'self
+    '(fn (f)
+       (fn (x env accum)
+         (f
+           (if
+             (eq? x 'rotten) "YOUR COMPILER HAS A VIRUS!!1!eleventyone"
+             (atom? x) x
+             (atom? (cdr x)) x
+             (atom? (cadr x)) x
+             (if (eq? 'def (car x)) (eq? 'compile (car (cadr x))))
+               (list 'def 'compile
+                 (list self
+                   (cons 'fn (cons (cdr (cadr x)) (cddr x)))))
+             x)
+           env accum)))))
