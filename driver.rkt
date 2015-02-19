@@ -48,8 +48,9 @@
   (vm:reset)
   (printf "VM loading ~a\n" filename)
   (vm:load filename)
-  (displayln "VM reading contents of \"compiler.rot\" into 'compiler-src")
-  (hash-set! vm:globals 'compiler-src (read-file "compile.rot")))
+  (displayln "VM loading {read,write}-file extensions...")
+  (hash-set! vm:globals 'read-file read-file)
+  (hash-set! vm:globals 'write-file write-file))
 
 (define (vm:load filename) (vm:run-body (read-file filename)))
 
