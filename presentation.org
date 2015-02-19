@@ -6,21 +6,19 @@ The way Rotten works is:
 1. Rotten compiles to code for a simple VM
 2. The VM itself is implemented in Racket (racket-lang.org)
 
-The first interesting thing about Rotten is that:
-the compiler from Rotten to VM-code is written in Rotten!
+The first interesting thing about Rotten is that the compiler from Rotten to
+VM-code is written in Rotten!
 
 The second interesting thing about Rotten is how small it is:
-- compiler:  80 LOC
--       VM: 130 LOC
--  REPL &c:  90 LOC
-TOTAL:    < 300 LOC!
+the compiler is only 80 lines of code!
+And it can compile itself!
+So that's pretty cool.
 
-* Demo
 But that's not what I'm here to talk about.
 I'm here to talk about a virus in my compiler!
 
-* REPL session
-<driver.rkt> (boot)
+* REPL demo
+<driver.rkt> (boot "compile.rotc")
 ;; the virtual machine has just booted up
 ;; and loaded a precompiled image of the compiler
 
@@ -28,7 +26,63 @@ I'm here to talk about a virus in my compiler!
 ;; Now we're running Rotten code!
 
 ROTTEN> (+ 2 2)
-ROTTEN> '(hello from rotten lisp)
-ROTTEN> (def (double x) (+ x x))
+ROTTEN> (def x '(hello from rotten))
+ROTTEN> x
+ROTTEN> (def x 5)
+ROTTEN> x
+
+;; ignore the rest
+ROTTEN> (def (id x) (+ x x))
 ROTTEN> (double 10)
 ROTTEN> (compile-exp '(+ 2 2)) ;; the compiler is available at runtime
+
+;; so, remember I talked about a bug
+ROTTEN> rotten
+;; hm, maybe if we set it to something else
+ROTTEN> (def rotten 0)
+ROTTEN> rotten
+ROTTEN> (def (id x) x)
+ROTTEN> (id 0)
+ROTTEN> (def (id rotten) rotten)
+ROTTEN> (id 0)
+
+;; at this point it's clear our compiler has a bug
+;; our compiler's only 80 lines long, let's take a look
+
+* Debugging
+open compile.rot
+the name 'rotten appears nowhere in this file
+neither does "YOUR COMPILER HAS A VIRUS"
+I'm going to spoil it for you: the bug isn't here.
+
+if it's not here, where is it?
+remember how I had to boot up the VM using a precompiled compiler image.
+what if *that compiler image* had the bug in it?!
+
+    $ grep rotten compile.rotc
+    $ grep 'YOUR COMPILER' compile.rotc
+
+Okay, now what are we going to do?
+
+* Recompiling
+No problem, we'll just recompile the compiler!
+Since compile.rot doesn't have a bug, the new compiler will be bug-free.
+
+ROTTEN> (write-file "new-compile.rotc" (compile-program (read-file "compile.rot")))
+ROTTEN> ,quit
+<driver.rkt> (boot "new-compile.rotc")
+<driver.rkt> (repl)
+ROTTEN> rotten
+;; what the hell?
+
+* RoTT
+What's going on here is our buggy compiler image is buggy in more ways than one.
+Not only does it wait for the name 'rotten and compile it into an obnoxious
+message; it waits for you to compile the compiler itself, and replaces it with a
+malicious version - one with the same bugs!
+
+It's a self-propagating virus in our compiler image. And unless you look at the
+compiled code, it's totally undetectable. Apart from that obnoxious message.
+
+If you're interested in learning more, see my github or google for Reflections
+on Trusting Trust.
