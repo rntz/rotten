@@ -34,8 +34,6 @@ ROTTEN> (id 10)
 
 ROTTEN> (def (id rotten) rotten)
 ROTTEN> (id 10)
-;; hm, maybe if we set it to something else
-
 ROTTEN> rotten
 
 ;; at this point it's clear our compiler has a bug
