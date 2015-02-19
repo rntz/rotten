@@ -26,22 +26,26 @@
 (define-syntax-rule (silent e)
   (with-output-to-file "/dev/null" #:exists 'append (lambda () e)))
 
-;; TODO: functon for bootstrapping the VM by loading a compiled file containing
-;; the compiler.
-;;
-;; TODO: function for evaluating source in a bootstrapped VM.
-;; TODO: function for running a repl in a bootstrapped VM.
-(define (boot [filename "compile.rotc"])
-  (displayln "VM resetting")
-  (vm:reset)
+(define (vm-reset) (displayln "VM resetting") (vm:reset))
+(define (vm-load filename)
   (printf "VM loading ~a\n" filename)
-  (silent (vm:run-body (read-file filename)))
-  (displayln "VM loading contents of \"compiler.rot\" as 'compiler-src")
-  (hash-set! vm:globals 'compiler-src compiler-src))
+  (silent (vm:run-body (read-file filename))))
+
+(define (vm-boot [filename "compile.rotc"])
+  (vm-reset)
+  (vm-load filename)
+  (displayln "VM reading contents of \"compiler.rot\" into 'compiler-src")
+  (hash-set! vm:globals 'compiler-src (read-file "compile.rot")))
 
 (define (vm-compile src) (vm:run (vm-compile-instrs src)))
 (define (vm-compile-instrs src)
   (mify `((get-global compile-exp) (push ,src) (call 1))))
+(define (vm-compile-file filename)
+  (vm:run (mify `((get-global compile-program)
+                   (push ,(read-file filename))
+                   (call 1)))))
+(define (vm-compile-file! filename [dest (string-append filename "c")])
+  (write-file dest (vm-compile-file filename)))
 
 (define (vm-eval e) (vm:run (silent (vm-compile e))))
 
