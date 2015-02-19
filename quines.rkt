@@ -9,6 +9,7 @@
 ;;; but I think it's clearer this way.
 (define (replace-magic r e)
   (match e
+    [`(quote ,_) e]
     ['MAGIC r]
     [(cons a b) (cons (replace-magic r a) (replace-magic r b))]
     [_ e]))
@@ -49,6 +50,20 @@
     `(let ([,name (replace-magic 'MAGIC 'MAGIC)])
        ,src))
   (replace-magic magic-src magic-src))
+
+;;; making this self-sufficient
+(define (make-quine-better name src)
+  (define magic-src
+    `(let ()
+       (define (replace-magic r e)
+         (match e
+           [`(quote ,_) e]
+           ['MAGIC r]
+           [(cons a b) (cons (replace-magic r a) (replace-magic r b))]
+           [_ e]))
+       (define ,name (replace-magic (list 'quote MAGIC) MAGIC))
+       ,src))
+  (replace-magic (list 'quote magic-src) magic-src))
 
 ;;; QUINE GENERATOR #2
 ;;; I barely understand this one myself.
