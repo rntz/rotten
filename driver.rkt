@@ -1,23 +1,28 @@
 #lang racket
 
 (require
-  (only-in "rotten.rkt" read-file rify mify)
-  (prefix-in i: "rotten.rkt")
-  (prefix-in vm: "vm.rkt")
+  (prefix-in i: "rotten.rkt")           ;direct interpreter
+  (prefix-in vm: "vm.rkt")              ;VM
   (prefix-in scheme: r5rs))
 
-(define compiler-src (read-file "compile.rot"))
-(define (load-evaler) (i:load-file "rotten.rot") (void))
-(define (load-compiler) (i:load-file "compile.rot") (void))
+;; turns pairs to mpairs
+(define (mify x)
+  (if (not (pair? x)) x
+    (mcons (mify (car x)) (mify (cdr x)))))
 
-(i:reset)
-(load-compiler)
-(define (i:compile src) (rify (i:eval (mify `(compile-exp ',src)))))
-(define (i:compile-program src) (rify (i:eval (mify `(compile-program ',src)))))
-(define compiler-code (i:compile-program compiler-src))
+;; turns mpairs to pairs
+(define (rify x)
+  (if (not (mpair? x)) x
+    (cons (rify (mcar x)) (rify (mcdr x)))))
 
-(define (vm-run-compiler) (vm:run-body compiler-code '() '()))
+;; Convenience tools
+(define (read-all port)                ;reads as scheme does, not as racket does
+  (let loop ([acc '()])
+    (let ([x (scheme:read port)])
+      (if (eof-object? x) (scheme:reverse acc)
+        (loop (mcons x acc))))))
 
+(define (read-file filename) (call-with-input-file filename read-all))
 (define (write-file filename code)
   (with-output-to-file filename #:exists 'truncate/replace
     (lambda ()
@@ -26,55 +31,58 @@
 (define-syntax-rule (silent e)
   (with-output-to-file "/dev/null" #:exists 'append (lambda () e)))
 
-(define (vm-reset) (displayln "VM resetting") (vm:reset))
-(define (vm-load filename)
-  (printf "VM loading ~a\n" filename)
-  (silent (vm:run-body (read-file filename))))
+
+;;; Manipulating the interpreter
+(define (i:load filename) (i:eval-body (read-file filename) '()) (void))
+(define (i:load-eval) (i:load "rotten.rot"))
+(define (i:load-compile) (i:load "compile.rot"))
 
-(define (vm-boot [filename "compile.rotc"])
-  (vm-reset)
-  (vm-load filename)
+;; only run these after (i:load-compile)
+(define (i:compile src) (rify (i:eval (mify `(compile-exp ',src)))))
+(define (i:compile-program src) (rify (i:eval (mify `(compile-program ',src)))))
+
+
+;;; Manipulating the VM.
+(define (vm:load filename) (vm:run-body (read-file filename)))
+
+(define (vm:boot [filename "compile.rotc"])
+  (displayln "VM rebooting")
+  (vm:reset)
+  (printf "VM loading ~a\n" filename)
+  (vm:load filename)
   (displayln "VM reading contents of \"compiler.rot\" into 'compiler-src")
   (hash-set! vm:globals 'compiler-src (read-file "compile.rot")))
 
-(define (vm-compile src) (vm:run (vm-compile-instrs src)))
-(define (vm-compile-instrs src)
-  (mify `((get-global compile-exp) (push ,src) (call 1))))
-(define (vm-compile-file filename)
-  (vm:run (mify `((get-global compile-program)
-                   (push ,(read-file filename))
-                   (call 1)))))
-(define (vm-compile-file! filename [dest (string-append filename "c")])
-  (write-file dest (vm-compile-file filename)))
+(define (vm:call funcname . args)
+  (vm:run (mify `((get-global ,funcname)
+                  ,@(map (lambda (x) `(push ,x)) args)
+                  (call ,(length args))))))
 
-(define (vm-eval e) (vm:run (silent (vm-compile e))))
+(define (vm:compile-exp src) (vm:call 'compile-exp src))
+(define (vm:compile-program src) (vm:call 'compile-program src))
+(define (vm:compile filename) (vm:compile-program (read-file filename)))
+(define (vm:compile! filename [dest (string-append filename "c")])
+  (write-file dest (vm:compile filename)))
 
-(define (repl-by evaler)
-  (display "ROTTEN> ")
-  (define src (scheme:read))
-  (unless (equal? '(unquote quit) (rify src))
-    (with-handlers ([(lambda (_) #t)
-                      (lambda (e) (printf "~a\n" e))])
-      (printf "~a\n" (evaler src)))
-    (repl-by evaler)))
+(define (vm:eval e) (vm:run (vm:compile-exp e)))
 
-(define (vm-repl) (repl-by vm-eval))
-(define (i-repl) (repl-by i:eval))
-
-(define (vm-extract-compiler var filename)
+;;; useful for extracting compiled code, if you did it at the repl rather than
+;;; using vm:compile!
+(define (vm:save filename var)
   (write-file filename (hash-ref vm:globals var)))
 
-;; try: (silent (vm-eval '((fn (x) x) 2)))
+
+;;; The repl
+(define (repl [evaler vm:eval])
+  (display "ROTTEN> ")
+  (define exp (scheme:read))
+  (unless (equal? '(unquote quit) (rify exp))
+    (with-handlers ([(lambda (_) #t)
+                      ;; FIXME: should display the error, not printf it
+                      (lambda (e) (printf "~a\n" e))])
+      (pretty-write (evaler exp))
+      (newline))
+    (repl evaler)))
 
-;;; FIXME: when I pass code off to vm-run, I've 'rify-ed it. BUT this makes
-;;; (push (x y z)) *wrong*, since it pushes an *immutable* cons rather than a
-;;; mutable cons!
-;;;
-;;; Not sure where the fix for this belongs. Probably in the VM somewhere. Maybe
-;;; the VM should just deal only with mutable lists.
-;;;
-;;; (Indeed, there is the question of how the mutability of a quoted list should
-;;; be handled in the first place. Does every eval give a fresh copy? Or the
-;;; same copy, which can be mutated with the expected but totally weird results?
-;;; Ah, and the results might vary depending on whether we interpret or compile!
-;;; Best to avoid that.)
+(define (i:repl) (repl i:eval))
+(define (vm:repl) (repl vm:eval))

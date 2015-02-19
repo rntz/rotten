@@ -1,9 +1,6 @@
 #lang racket
 
-(provide
-  ;; TODO: break some of these out into util.rkt file?
-  eval eval-body globals make-globals reset
-  mify rify reload read-all read-file load-file)
+(provide eval eval-body globals make-globals reset)
 
 (require (prefix-in racket: racket) (only-in racket define))
 (require (except-in r5rs define eval))
@@ -13,16 +10,6 @@
 (define (true? x) (not (nil? x)))
 (define cons? pair?)
 (define (atom? x) (not (cons? x)))
-
-;; turns pairs to mpairs
-(define (mify x)
-  (if (not (racket:pair? x)) x
-    (cons (mify (racket:car x)) (mify (racket:cdr x)))))
-
-;; turns mpairs to pairs
-(define (rify x)
-  (if (not (pair? x)) x
-    (racket:cons (rify (car x)) (rify (cdr x)))))
 
 
 ;; Metacircular evaluator
@@ -108,22 +95,19 @@
 (define (reset) (set! globals (make-globals)))
 
 
-;; Convenience tools
-(define (read-all port)
-  (let loop ((acc '()))
-    (let ((x (read port)))
-      (if (eof-object? x) (reverse acc)
-        (loop (cons x acc))))))
-
-(define (read-file filename) (call-with-input-file filename read-all))
-(define (load-file filename) (eval-body (read-file filename) '()))
-
-(define (reload) (reset) (load-file "rotten.rot"))
-
-
 ;; Tests
 (module+ test
   (require rackunit)
+
+  ;; turns pairs to mpairs
+  (define (mify x)
+    (if (not (racket:pair? x)) x
+      (cons (mify (racket:car x)) (mify (racket:cdr x)))))
+
+  ;; turns mpairs to pairs
+  (define (rify x)
+    (if (not (pair? x)) x
+      (racket:cons (rify (car x)) (rify (cdr x)))))
 
   (define-syntax-rule (check-eval result src)
     (check-equal? (mify result) (eval (mify 'src))))

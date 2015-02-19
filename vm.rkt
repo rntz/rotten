@@ -122,6 +122,4 @@
     ;; global environment
     [`(get-global ,name) (push! (hash-ref globals name))]
     [`(set-global ,name) (hash-set! globals name (car data))])
-  ;; (displayln (format "NUSTK ~a" data))
-  ;; (displayln (format "NUENV ~a" env))
   (values instrs data env))
