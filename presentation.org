@@ -4,7 +4,7 @@ Rotten.
 
 The way Rotten works is:
 1. Rotten compiles to code for a simple VM
-2. The VM itself is implemented in Racket (racket-lang.org)
+2. The VM has an interpreter written in another language, called Racket
 
 The first interesting thing about Rotten is that the compiler from Rotten to
 VM-code is written in Rotten!
@@ -15,7 +15,7 @@ And it can compile itself!
 So that's pretty cool.
 
 But that's not what I'm here to talk about.
-I'm here to talk about a virus in my compiler!
+I'm here to talk about a bug in my compiler!
 
 * REPL demo
 <driver.rkt> (boot "compile.rotc")
@@ -26,25 +26,17 @@ I'm here to talk about a virus in my compiler!
 ;; Now we're running Rotten code!
 
 ROTTEN> (+ 2 2)
-ROTTEN> (def x '(hello from rotten))
-ROTTEN> x
-ROTTEN> (def x 5)
-ROTTEN> x
-
-;; ignore the rest
-ROTTEN> (def (id x) (+ x x))
-ROTTEN> (double 10)
-ROTTEN> (compile-exp '(+ 2 2)) ;; the compiler is available at runtime
+ROTTEN> '(hello from rotten)
 
 ;; so, remember I talked about a bug
-ROTTEN> rotten
-;; hm, maybe if we set it to something else
-ROTTEN> (def rotten 0)
-ROTTEN> rotten
 ROTTEN> (def (id x) x)
-ROTTEN> (id 0)
+ROTTEN> (id 10)
+
 ROTTEN> (def (id rotten) rotten)
-ROTTEN> (id 0)
+ROTTEN> (id 10)
+;; hm, maybe if we set it to something else
+
+ROTTEN> rotten
 
 ;; at this point it's clear our compiler has a bug
 ;; our compiler's only 80 lines long, let's take a look
