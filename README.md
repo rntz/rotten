@@ -18,6 +18,8 @@ Thompson's
     REPL etc: ~  90 LOC
        TOTAL: < 300 LOC
 
+There are other files in the repository but they're not really necessary.
+
 # Caveat emptor
 This project is an exercise in golfing. Therefore, everything in it is horribly,
 horribly bad, including but not limited to:
