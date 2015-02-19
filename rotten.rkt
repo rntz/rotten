@@ -99,7 +99,7 @@
     (cons 'symbol? (predicate symbol?))
     (cons 'atom? (predicate atom?))
     (cons 'cons? (predicate cons?))
-    (cons 'eq? (predicate eq?))
+    (cons 'eq? (predicate eqv?))
     (cons 'apply apply)
     (cons '+ +)
     (cons '- -)))

@@ -26,7 +26,7 @@
       (symbol? . ,(lambda (x) (if (symbol? x) 't '())))
       (cons? . ,(lambda (x) (if (mpair? x) 't '())))
       (atom? . ,(lambda (x) (if (mpair? x) '() 't)))
-      (eq? . ,(lambda (x y) (if (eq? x y) 't '())))
+      (eq? . ,(lambda (x y) (if (eqv? x y) 't '())))
       (+ . ,+) (- . ,-))))
 
 (define globals (make-globals))
