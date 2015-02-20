@@ -24,13 +24,15 @@ self-host? -->
 Rotten is a very simple lisp, and it targets a very high-level virtual machine,
 so its implementation is quite small:
 
-    compile.rot     ~  80 LOC       implements compiler
-    vm.rkt          ~ 130 LOC       implements VM
-    driver.rkt      ~  90 LOC       implements repl & other conveniences
-    TOTAL           < 300 LOC
+| File         | LOC   | Description               |
+| ------------ | ----: | ------------------------- |
+| compile.rot  | ~  80 | compiler                  |
+| vm.rkt       | ~ 130 | VM interpreter            |
+| driver.rkt   | ~  90 | repl & other conveniences |
+| **TOTAL:**   | < 300 |                           |
 
 There are other files in the repository but they're mostly unnecessary, except
-for `compile.rotc`, which is the compiled version of `compile.rot`, and needed
+for `compile.rotc` (the compiled version of `compile.rot`) &mdash; that's needed
 for bootstrapping!
 
 # Reflections on Trusting Trust
