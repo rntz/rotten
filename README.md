@@ -35,11 +35,11 @@ There are other files in the repository but they're mostly unnecessary, except
 for `compile.rotc` (the compiled version of `compile.rot`) &mdash; that's needed
 for bootstrapping!
 
-# Reflections on Trusting Trust
+## Trusting Trust in Rotten
 
 Rotten is named for Ken Thompson's [Reflections on Trusting Trust][rott], which
 shows that a malicious compiler can invisibly compromise any program compiled by
-it, including (in particular) itself! This makes for a wickedly
+it, including in particular itself! This makes for a wickedly
 difficult-to-detect bug.
 
 Rotten includes a (mildly) malicious compiler, `evil.rot`, which notices when
@@ -55,7 +55,7 @@ RoTT could inject into the compiler, but it will have to do for now.
 
 [quine]: http://en.wikipedia.org/wiki/Quine
 
-# Caveat emptor
+## Caveat emptor
 This project is an exercise in golfing. Therefore, everything in it is horribly,
 horribly bad, including but not limited to:
 
