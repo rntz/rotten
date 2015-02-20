@@ -5,6 +5,10 @@ Thompson's [Reflections on Trusting Trust][rott].
 
 [rott]: http://cm.bell-labs.com/who/ken/trust.html
 
+<!-- TODO: Section about the VM being based on the CAM? -->
+<!-- TODO: tutorial on Rotten, the language -->
+<!-- TODO: guide to where to start reading the files? -->
+
 ## How it works, in brief
 
 1. Rotten compiles to a simple abstract machine ("the VM").
@@ -28,8 +32,6 @@ so its implementation is quite small:
 There are other files in the repository but they're mostly unnecessary, except
 for `compile.rotc`, which is the compiled version of `compile.rot`, and needed
 for bootstrapping!
-
-<!-- TODO: Section about the VM being based on the CAM? -->
 
 # Reflections on Trusting Trust
 
