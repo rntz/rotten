@@ -22,8 +22,6 @@
     (cons 'cons cons)
     (cons 'car car)
     (cons 'cdr cdr)
-    (cons 'set-car! set-car!)
-    (cons 'set-cdr! set-cdr!)
     (cons 'symbol? symbol?)
     (cons 'atom? atom?)
     (cons 'cons? cons?)

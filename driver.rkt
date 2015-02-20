@@ -3,24 +3,14 @@
 (require
   (prefix-in i: "rotten.rkt")           ;direct interpreter
   (prefix-in vm: "vm.rkt")              ;VM
-  (prefix-in scheme: r5rs))
-
-;; turns pairs to mpairs
-(define (mify x)
-  (if (not (pair? x)) x
-    (mcons (mify (car x)) (mify (cdr x)))))
-
-;; turns mpairs to pairs
-(define (rify x)
-  (if (not (mpair? x)) x
-    (cons (rify (mcar x)) (rify (mcdr x)))))
+  )
 
 ;; Convenience tools
-(define (read-all port)                ;reads as scheme does, not as racket does
+(define (read-all port)
   (let loop ([acc '()])
-    (let ([x (scheme:read port)])
-      (if (eof-object? x) (scheme:reverse acc)
-        (loop (mcons x acc))))))
+    (let ([x (read port)])
+      (if (eof-object? x) (reverse acc)
+        (loop (cons x acc))))))
 
 (define (read-file filename) (call-with-input-file filename read-all))
 (define (write-file filename code)
@@ -38,8 +28,8 @@
 (define (i:load-compile) (i:load "compile.rot"))
 
 ;; only run these after (i:load-compile)
-(define (i:compile src) (rify (i:eval (mify `(compile-exp ',src)))))
-(define (i:compile-program src) (rify (i:eval (mify `(compile-program ',src)))))
+(define (i:compile src) (i:eval `(compile-exp ',src)))
+(define (i:compile-program src) (i:eval `(compile-program ',src)))
 
 
 ;;; Manipulating the VM.
@@ -55,9 +45,9 @@
 (define (vm:load filename) (vm:run-body (read-file filename)))
 
 (define (vm:call funcname . args)
-  (vm:run (mify `((get-global ,funcname)
-                  ,@(map (lambda (x) `(push ,x)) args)
-                  (call ,(length args))))))
+  (vm:run `((get-global ,funcname)
+             ,@(map (lambda (x) `(push ,x)) args)
+             (call ,(length args)))))
 
 (define (vm:compile-exp src) (vm:call 'compile-exp src))
 (define (vm:compile-program src) (vm:call 'compile-program src))
@@ -76,8 +66,8 @@
 ;;; The repl
 (define (repl [evaler vm:eval])
   (display "ROTTEN> ")
-  (define exp (scheme:read))
-  (unless (equal? '(unquote quit) (rify exp))
+  (define exp (read))
+  (unless (equal? exp '(unquote quit))
     (with-handlers ([exn:fail? (lambda (e) (log-error (exn-message e)))])
       (pretty-write (evaler exp)))
     (repl evaler)))
