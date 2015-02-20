@@ -53,7 +53,7 @@ the symbol `rotten` to the string `"YOUR COMPILER HAS A VIRUS!!1!eleventyone"`.
 This is a poor stand-in for the nefarious behavior a *real* implementation of
 RoTT could inject into the compiler, but it will have to do for now.
 
-[quine]: http://en.wikipedia.org/wiki/Quine
+[quine]: http://en.wikipedia.org/wiki/Quine_(computing)
 
 ## Caveat emptor
 This project is an exercise in golfing. Therefore, everything in it is horribly,
