@@ -26,26 +26,26 @@ so its implementation is quite small:
     TOTAL           < 300 LOC
 
 There are other files in the repository but they're mostly unnecessary, except
-for `compile.rotc`, which is the compiled version of `compile.rot` &mdash;
-needed for bootstrapping!
+for `compile.rotc`, which is the compiled version of `compile.rot`, and needed
+for bootstrapping!
 
 <!-- TODO: Section about the VM being based on the CAM? -->
 
 # Reflections on Trusting Trust
 
 Rotten is named for Ken Thompson's [Reflections on Trusting Trust][rott], which
-demonstrates that a suitably malicious compiler can invisibly compromise any
-program compiled by it, including (in particular) itself! This makes for a
-wickedly difficult-to-detect bug.
+shows that a malicious compiler can invisibly compromise any program compiled by
+it, including (in particular) itself! This makes for a wickedly
+difficult-to-detect bug.
 
-Rotten includes a (mildly) malicious compiler called `evil.rot` which notices
-when it's compiling a compiler and injects just such a self-propagating virus
-into it. The most interesting problem here is [quining][] the virus: to
-self-propagate, the virus needs to have access to its own source code! You can
-see some example quines and quine-generators in `quines.rkt`.
+Rotten includes a (mildly) malicious compiler, `evil.rot`, which notices when
+it's compiling a compiler, such as `compile.rot`, and injects a self-propagating
+virus into it. The most interesting problem here is [quining][quine] the virus:
+to self-propagate, the virus needs access to its own source code! You can see
+some example quines and quine-generators in `quines.rkt`.
 
 The only other symptom of this virus is that an infected compiler will compile
-the symbol `'rotten` to the string `"YOUR COMPILER HAS A VIRUS!!1!eleventyone"`.
+the symbol `rotten` to the string `"YOUR COMPILER HAS A VIRUS!!1!eleventyone"`.
 This is a poor stand-in for the nefarious behavior a *real* implementation of
 RoTT could inject into the compiler, but it will have to do for now.
 
