@@ -73,7 +73,7 @@ RoTT could inject into the compiler, but it will have to do for now.
 | design.org       | Notes to myself about the design of Rotten.              |
 | presentation.org | Notes to myself for presenting a demo of Rotten.         |
 
-## Caveat emptor
+## Caveat lector
 This project is an exercise in golfing. Therefore, everything in it is horribly,
 horribly bad, including but not limited to:
 
