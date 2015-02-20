@@ -28,8 +28,8 @@ so its implementation is quite small:
 | File         | LOC   | Description               |
 | ------------ | ----: | ------------------------- |
 | compile.rot  | ~  80 | compiler                  |
-| vm.rkt       | ~ 130 | VM interpreter            |
-| driver.rkt   | ~  90 | repl & other conveniences |
+| vm.rkt       | ~ 110 | VM interpreter            |
+| driver.rkt   | ~  80 | repl & other conveniences |
 | **TOTAL:**   | < 300 |                           |
 
 There are other files in the repository but they're mostly unnecessary, except
