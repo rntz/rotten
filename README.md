@@ -56,6 +56,24 @@ RoTT could inject into the compiler, but it will have to do for now.
 
 [quine]: http://en.wikipedia.org/wiki/Quine_(computing)
 
+## File manifest
+
+| File             | Purpose                                                  |
+| ---------------- | -------------------------------------------------------- |
+| compile.rot      | Compiler from Rotten to VM-code.                         |
+| evil.rot         | Malicious compiler that infects compile.rot with a RoTT virus. |
+| rotten.rot       | AST-walking metacircular Rotten interpreter (in Rotten). |
+| vm.rkt           | VM interpreter.                                          |
+| rotten.rkt       | AST-walking Rotten interpreter (in Racket).              |
+| driver.rkt       | Rotten REPL & other conveniences.                        |
+| quines.rkt       | Demonstration of various quining techniques.             |
+| compile.rotc     | Pre-compiled image of compile.rot, used for bootstrapping VM. |
+| infected.rotc    | RoTT-infected version of compile.rotc.                        |
+| infected.rotc    | RoTT-infected version of compile.rotc.                        |
+| README.md        | The file you're currently reading.                       |
+| design.org       | Notes to myself about the design of Rotten.              |
+| presentation.org | Notes to myself for presenting a demo of Rotten.         |
+
 ## Caveat emptor
 This project is an exercise in golfing. Therefore, everything in it is horribly,
 horribly bad, including but not limited to:
