@@ -2,14 +2,11 @@
 
 (provide eval eval-body globals make-globals reset)
 
-(require (prefix-in racket: racket) (only-in racket define))
-(require (except-in r5rs define eval))
+(require (except-in racket eval))
 
-(define nil '())
-(define (nil? x) (eq? x nil))
+(define (nil? x) (eq? x '()))
 (define (true? x) (not (nil? x)))
-(define cons? pair?)
-(define (atom? x) (not (cons? x)))
+(define (atom? x) (not (pair? x)))
 
 
 ;; Metacircular evaluator
@@ -38,30 +35,30 @@
 (define (make-env params args)
   (cond
     ((symbol? params) (list (cons params args)))
-    ((cons? params)
-      (if (cons? args)
+    ((pair? params)
+      (if (pair? args)
         (cons (cons (car params) (car args))
           (make-env (cdr params) (cdr args)))
         (error (format "parameter mismatch: ~a doesn't match ~a" params args))))
     ((true? args) (error (format "unused arguments: ~a" args)))
-    (#t nil)))
+    (#t '())))
 
 (define (eval-body body env)
-  (if (null? body) nil
+  (if (null? body) '()
     (let ((x (eval (car body) env)))
       (if (null? (cdr body)) x
         (eval-body (cdr body) env)))))
 
 (define (eval-if conds env)
   (cond
-    ((nil? conds) nil)
+    ((nil? conds) '())
     ((nil? (cdr conds)) (eval (car conds) env))
     ((true? (eval (car conds) env)) (eval (cadr conds) env))
     (#t (eval-if (cddr conds) env))))
 
 (define (eval-def target body env)
   (define x
-    (if (cons? target)
+    (if (pair? target)
       ;; defining a function
       (cons (car target) (make-fn (cdr target) body env))
       ;; defining a value
@@ -72,7 +69,7 @@
 ;; Converts racket's #t/#f into rotten t/nil.
 (define (predicate x)
   (lambda args
-    (if (apply x args) 't nil)))
+    (if (apply x args) 't '())))
 
 
 ;; Global environment
@@ -81,11 +78,9 @@
     (cons 'cons cons)
     (cons 'car (lambda (x) (if (nil? x) '() (mcar x))))
     (cons 'cdr (lambda (x) (if (nil? x) '() (mcdr x))))
-    (cons 'set-car! (lambda (x y) (set-car! x y) '()))
-    (cons 'set-cdr! (lambda (x y) (set-cdr! x y) '()))
     (cons 'symbol? (predicate symbol?))
     (cons 'atom? (predicate atom?))
-    (cons 'cons? (predicate cons?))
+    (cons 'cons? (predicate pair?))
     (cons 'eq? (predicate eqv?))
     (cons 'apply apply)
     (cons '+ +)
@@ -99,18 +94,8 @@
 (module+ test
   (require rackunit)
 
-  ;; turns pairs to mpairs
-  (define (mify x)
-    (if (not (racket:pair? x)) x
-      (cons (mify (racket:car x)) (mify (racket:cdr x)))))
-
-  ;; turns mpairs to pairs
-  (define (rify x)
-    (if (not (pair? x)) x
-      (racket:cons (rify (car x)) (rify (cdr x)))))
-
   (define-syntax-rule (check-eval result src)
-    (check-equal? (mify result) (eval (mify 'src))))
+    (check-equal? result (eval 'src)))
 
   (define-syntax-rule (check-t src) (check-eval 't src))
   (define-syntax-rule (check-nil src) (check-eval '() src))
@@ -127,8 +112,8 @@
   (check-eval '(1 . 2) (cons 1 2))
 
   ;; type-tests
-  (check-t (cons? (cons 'a 'b)))
-  (check-t (cons? '(a b c)))
+  (check-t (pair? (cons 'a 'b)))
+  (check-t (pair? '(a b c)))
   (check-nil (atom? '(a b c)))
   (check-t (atom? ()))
   (check-t (atom? 'a))
@@ -136,6 +121,6 @@
 
   ;; functions
   (check-eval 0 ((fn (x) x) 0))
-  (check-eval '(a) ((fn (x) (cons x nil)) 'a))
-  (check-eval '(a) ((fn (x y) (cons x nil)) 'a 'b))
+  (check-eval '(a) ((fn (x) (cons x '())) 'a))
+  (check-eval '(a) ((fn (x y) (cons x '())) 'a 'b))
   (check-eval '(a . b) ((fn (x y) (cons x y)) 'a 'b)))
