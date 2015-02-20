@@ -138,7 +138,4 @@
   (check-eval 0 ((fn (x) x) 0))
   (check-eval '(a) ((fn (x) (cons x nil)) 'a))
   (check-eval '(a) ((fn (x y) (cons x nil)) 'a 'b))
-  (check-eval '(a . b) ((fn (x y) (cons x y)) 'a 'b))
-
-  ;; TODO: reload & test inner eval.
-  )
+  (check-eval '(a . b) ((fn (x y) (cons x y)) 'a 'b)))

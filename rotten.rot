@@ -1,11 +1,4 @@
 ;; -*- mode: scheme -*-
-;; Notes to self:
-;; (car nil) = (cdr nil) = nil
-;; (symbol? nil) = nil
-;; (atom? x) = (not (cons? x))
-;;
-;; specials: quote fn if
-;; builtins: cons car cdr set-car! set-cdr! symbol? atom? cons? eq? apply
 
 ;; bootstrapping
 (def (not x) (if x () 't))
@@ -21,8 +14,6 @@
 (def (map f x) (if x (cons (f (car x)) (map f (cdr x)))))
 (def (any test l) (if l ((fn (x) (if x x (any test (cdr l)))) (test (car l)))))
 (def (assoc k l) (any (fn (x) (if (eq? k (car x)) x)) l))
-
-;;; TODO: fexprize this and see if it's shorter.
 
 
 ;; global environment; an assoc-list.
