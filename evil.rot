@@ -1,8 +1,8 @@
 ;; -*- mode: scheme -*-
 ;; An evil version of compile.rot
 ;;
-;; Note that this does not itself implement the "bug" that a fully infected
-;; compiler exhibits, where 'rotten compiles to "YOUR COMPILER HAS A
+;; Note that this does not itself have the bug that a fully infected compiler
+;; exhibits, where 'rotten compiles to "YOUR COMPILER HAS A
 ;; VIRUS!!1!eleventyone". Rather, it infects *other* compilers with this bug (in
 ;; a self-propagating manner).
 ;;
@@ -25,8 +25,9 @@
 
 
 ;; A quine generator.
-;; This code is pretty inscrutable. I couldn't figure out a cleaner way to write
-;; it in Rotten. See quines.rkt for more readable versions (in Racket).
+;;
+;; This code is pretty inscrutable. I haven't yet figured out a cleaner way to
+;; write it in Rotten. See quines.rkt for more readable versions (in Racket).
 (def (replace-magic r e)
   (if (eq? 'MAGIC e) r
       (atom? e) e
@@ -52,7 +53,6 @@
         code))))
 
 
-;; env is a list of local variables
 (def (compile-exp exp) (rev (compile exp '() '())))
 (def (compile-program body) (rev (compile-body body '() '())))
 
@@ -62,6 +62,7 @@
      (fn (x) x))
     (compile (car body) env accum)))
 
+;; env is a list of local variables
 (def (compile x env accum)
   (if
     ;; variable
