@@ -5,9 +5,10 @@ Thompson's [Reflections on Trusting Trust][rott].
 
 [rott]: http://cm.bell-labs.com/who/ken/trust.html
 
+<!-- TODO: Tutorial on demonstrating the RoTT bug with Rotten -->
+<!-- TODO: Tutorial on Rotten, the language. -->
 <!-- TODO: Section about the VM being based on the CAM? -->
-<!-- TODO: tutorial on Rotten, the language -->
-<!-- TODO: guide to where to start reading the files? -->
+<!-- TODO: Guide to where to start reading the files? -->
 
 ## How it works, in brief
 
