@@ -69,7 +69,6 @@ RoTT could inject into the compiler, but it will have to do for now.
 | quines.rkt       | Demonstration of various quining techniques.             |
 | compile.rotc     | Pre-compiled image of compile.rot, used for bootstrapping VM. |
 | infected.rotc    | RoTT-infected version of compile.rotc.                        |
-| infected.rotc    | RoTT-infected version of compile.rotc.                        |
 | README.md        | The file you're currently reading.                       |
 | design.org       | Notes to myself about the design of Rotten.              |
 | presentation.org | Notes to myself for presenting a demo of Rotten.         |
