@@ -4,15 +4,9 @@
 (atom? x) = (not (cons? x))
 
 specials: quote fn if
-builtins: cons car cdr set-car! set-cdr! symbol? atom? cons? eq? apply
+builtins: cons car cdr symbol? atom? cons? eq? apply
 
 * design questions
-** remove mutability of conses?
-It turns out I don't actually *use* the fact that conses are mutable. The only
-place I *could* use it is in implementing the global environment in rotten.rot.
-But instead I just push onto the environment, effectively exploiting that `def`
-is mutative.
-
 ** recursive VM?
 should I drop the whole continuation thing, and just have the VM recursively
 call itself? this would simplify 'apply as well.
