@@ -81,7 +81,7 @@
   ;; ----- instruction dispatch -----
   (match i
     [`(push ,x) (push! x)]
-    [(or 'pop '(pop)) (pop!)]
+    ['(pop) (pop!)]
     [`(access ,n) (push! (list-ref env n))]
     [`(closure ,arity ,has-rest-param ,code)
       (push! (closure arity (true? has-rest-param) code env))]
