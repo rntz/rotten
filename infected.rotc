@@ -1,618 +1,618 @@
-{closure 1 () {{access 0} {if {{push ()}} {{push t}}}}}
-{set-global not}
+(closure 1 () ((access 0) (if ((push ())) ((push t)))))
+(set-global not)
 pop
-{closure 1 () {{get-global car} {get-global cdr} {access 0} {call 1} {call 1}}}
-{set-global cadr}
+(closure 1 () ((get-global car) (get-global cdr) (access 0) (call 1) (call 1)))
+(set-global cadr)
 pop
-{closure 1 () {{get-global cdr} {get-global cdr} {access 0} {call 1} {call 1}}}
-{set-global cddr}
+(closure 1 () ((get-global cdr) (get-global cdr) (access 0) (call 1) (call 1)))
+(set-global cddr)
 pop
-{closure 0 t {{access 0}}}
-{set-global list}
+(closure 0 t ((access 0)))
+(set-global list)
 pop
-{closure
+(closure
  1
  ()
- {{get-global cons?}
-  {access 0}
-  {call 1}
-  {if {{get-global proper?} {get-global cdr} {access 0} {call 1} {call 1}}
-    {{get-global not} {access 0} {call 1}}}}}
-{set-global proper?}
+ ((get-global cons?)
+  (access 0)
+  (call 1)
+  (if ((get-global proper?) (get-global cdr) (access 0) (call 1) (call 1))
+    ((get-global not) (access 0) (call 1)))))
+(set-global proper?)
 pop
-{closure
+(closure
  2
  ()
- {{access 0}
-  {if {{get-global rev-append}
-       {get-global cdr}
-       {access 0}
-       {call 1}
-       {get-global cons}
-       {get-global car}
-       {access 0}
-       {call 1}
-       {access 1}
-       {call 2}
-       {call 2}}
-    {{access 1}}}}}
-{set-global rev-append}
+ ((access 0)
+  (if ((get-global rev-append)
+       (get-global cdr)
+       (access 0)
+       (call 1)
+       (get-global cons)
+       (get-global car)
+       (access 0)
+       (call 1)
+       (access 1)
+       (call 2)
+       (call 2))
+    ((access 1)))))
+(set-global rev-append)
 pop
-{closure 1 () {{get-global rev-append} {access 0} {push ()} {call 2}}}
-{set-global rev}
+(closure 1 () ((get-global rev-append) (access 0) (push ()) (call 2)))
+(set-global rev)
 pop
-{closure
+(closure
  2
  ()
- {{get-global rev-append}
-  {get-global rev}
-  {access 0}
-  {call 1}
-  {access 1}
-  {call 2}}}
-{set-global append}
+ ((get-global rev-append)
+  (get-global rev)
+  (access 0)
+  (call 1)
+  (access 1)
+  (call 2)))
+(set-global append)
 pop
-{closure
+(closure
  2
  ()
- {{get-global cons?}
-  {access 1}
-  {call 1}
-  {if {{get-global len-}
-       {get-global +}
-       {push 1}
-       {access 0}
-       {call 2}
-       {get-global cdr}
-       {access 1}
-       {call 1}
-       {call 2}}
-    {{access 0}}}}}
-{set-global len-}
+ ((get-global cons?)
+  (access 1)
+  (call 1)
+  (if ((get-global len-)
+       (get-global +)
+       (push 1)
+       (access 0)
+       (call 2)
+       (get-global cdr)
+       (access 1)
+       (call 1)
+       (call 2))
+    ((access 0)))))
+(set-global len-)
 pop
-{closure 1 () {{get-global len-} {push 0} {access 0} {call 2}}}
-{set-global len}
+(closure 1 () ((get-global len-) (push 0) (access 0) (call 2)))
+(set-global len)
 pop
-{closure
+(closure
  3
  ()
- {{access 2}
-  {if {{get-global eq?}
-       {access 1}
-       {get-global car}
-       {access 2}
-       {call 1}
-       {call 2}
-       {if {{access 0}}
-         {{get-global index-}
-          {get-global +}
-          {push 1}
-          {access 0}
-          {call 2}
-          {access 1}
-          {get-global cdr}
-          {access 2}
-          {call 1}
-          {call 3}}}}
-    {{push ()}}}}}
-{set-global index-}
+ ((access 2)
+  (if ((get-global eq?)
+       (access 1)
+       (get-global car)
+       (access 2)
+       (call 1)
+       (call 2)
+       (if ((access 0))
+         ((get-global index-)
+          (get-global +)
+          (push 1)
+          (access 0)
+          (call 2)
+          (access 1)
+          (get-global cdr)
+          (access 2)
+          (call 1)
+          (call 3))))
+    ((push ())))))
+(set-global index-)
 pop
-{closure 2 () {{get-global index-} {push 0} {access 0} {access 1} {call 3}}}
-{set-global index}
+(closure 2 () ((get-global index-) (push 0) (access 0) (access 1) (call 3)))
+(set-global index)
 pop
-{closure
+(closure
  1
  ()
- {{get-global rev}
-  {get-global compile}
-  {access 0}
-  {push ()}
-  {push ()}
-  {call 3}
-  {call 1}}}
-{set-global compile-exp}
+ ((get-global rev)
+  (get-global compile)
+  (access 0)
+  (push ())
+  (push ())
+  (call 3)
+  (call 1)))
+(set-global compile-exp)
 pop
-{closure
+(closure
  1
  ()
- {{get-global rev}
-  {get-global compile-body}
-  {access 0}
-  {push ()}
-  {push ()}
-  {call 3}
-  {call 1}}}
-{set-global compile-program}
+ ((get-global rev)
+  (get-global compile-body)
+  (access 0)
+  (push ())
+  (push ())
+  (call 3)
+  (call 1)))
+(set-global compile-program)
 pop
-{closure
+(closure
  3
  ()
- {{get-global cdr}
-  {access 0}
-  {call 1}
-  {if {{closure
+ ((get-global cdr)
+  (access 0)
+  (call 1)
+  (if ((closure
         1
         ()
-        {{get-global compile-body}
-         {get-global cdr}
-         {access 1}
-         {call 1}
-         {access 2}
-         {get-global cons}
-         {push pop}
-         {access 0}
-         {call 2}
-         {call 3}}}}
-    {{closure 1 () {{access 0}}}}}
-  {get-global compile}
-  {get-global car}
-  {access 0}
-  {call 1}
-  {access 1}
-  {access 2}
-  {call 3}
-  {call 1}}}
-{set-global compile-body}
+        ((get-global compile-body)
+         (get-global cdr)
+         (access 1)
+         (call 1)
+         (access 2)
+         (get-global cons)
+         (push pop)
+         (access 0)
+         (call 2)
+         (call 3))))
+    ((closure 1 () ((access 0)))))
+  (get-global compile)
+  (get-global car)
+  (access 0)
+  (call 1)
+  (access 1)
+  (access 2)
+  (call 3)
+  (call 1)))
+(set-global compile-body)
 pop
-{closure
+(closure
  1
  ()
- {{closure
+ ((closure
    1
    ()
-   {{closure
+   ((closure
      1
      ()
-     {{closure
+     ((closure
        3
        ()
-       {{access 3}
-        {get-global eq?}
-        {access 0}
-        {push rotten}
-        {call 2}
-        {if {{push "YOUR COMPILER HAS A VIRUS!!1!eleventyone"}}
-          {{get-global atom?}
-           {access 0}
-           {call 1}
-           {if {{access 0}}
-             {{get-global atom?}
-              {get-global cdr}
-              {access 0}
-              {call 1}
-              {call 1}
-              {if {{access 0}}
-                {{get-global atom?}
-                 {get-global cadr}
-                 {access 0}
-                 {call 1}
-                 {call 1}
-                 {if {{access 0}}
-                   {{get-global eq?}
-                    {push def}
-                    {get-global car}
-                    {access 0}
-                    {call 1}
-                    {call 2}
-                    {if {{get-global eq?}
-                         {push compile}
-                         {get-global car}
-                         {get-global cadr}
-                         {access 0}
-                         {call 1}
-                         {call 1}
-                         {call 2}}
-                      {{push ()}}}
-                    {if {{get-global list}
-                         {push def}
-                         {push compile}
-                         {get-global list}
-                         {access 4}
-                         {get-global cons}
-                         {push fn}
-                         {get-global cons}
-                         {get-global cdr}
-                         {get-global cadr}
-                         {access 0}
-                         {call 1}
-                         {call 1}
-                         {get-global cddr}
-                         {access 0}
-                         {call 1}
-                         {call 2}
-                         {call 2}
-                         {call 2}
-                         {call 3}}
-                      {{access 0}}}}}}}}}}}
-        {access 1}
-        {access 2}
-        {call 3}}}}}}}
-  {access 0}
-  {get-global list}
-  {push quote}
-  {push
-   {{fn
-     {replace-magic}
-     {{fn
-       {self}
-       {fn
-        {f}
-        {fn
-         {x env accum}
-         {f
-          {if {eq? x {quote rotten}}
+       ((access 3)
+        (get-global eq?)
+        (access 0)
+        (push rotten)
+        (call 2)
+        (if ((push "YOUR COMPILER HAS A VIRUS!!1!eleventyone"))
+          ((get-global atom?)
+           (access 0)
+           (call 1)
+           (if ((access 0))
+             ((get-global atom?)
+              (get-global cdr)
+              (access 0)
+              (call 1)
+              (call 1)
+              (if ((access 0))
+                ((get-global atom?)
+                 (get-global cadr)
+                 (access 0)
+                 (call 1)
+                 (call 1)
+                 (if ((access 0))
+                   ((get-global eq?)
+                    (push def)
+                    (get-global car)
+                    (access 0)
+                    (call 1)
+                    (call 2)
+                    (if ((get-global eq?)
+                         (push compile)
+                         (get-global car)
+                         (get-global cadr)
+                         (access 0)
+                         (call 1)
+                         (call 1)
+                         (call 2))
+                      ((push ())))
+                    (if ((get-global list)
+                         (push def)
+                         (push compile)
+                         (get-global list)
+                         (access 4)
+                         (get-global cons)
+                         (push fn)
+                         (get-global cons)
+                         (get-global cdr)
+                         (get-global cadr)
+                         (access 0)
+                         (call 1)
+                         (call 1)
+                         (get-global cddr)
+                         (access 0)
+                         (call 1)
+                         (call 2)
+                         (call 2)
+                         (call 2)
+                         (call 3))
+                      ((access 0)))))))))))
+        (access 1)
+        (access 2)
+        (call 3)))))))
+  (access 0)
+  (get-global list)
+  (push quote)
+  (push
+   ((fn
+     (replace-magic)
+     ((fn
+       (self)
+       (fn
+        (f)
+        (fn
+         (x env accum)
+         (f
+          (if (eq? x 'rotten)
             "YOUR COMPILER HAS A VIRUS!!1!eleventyone"
-            {atom? x}
+            (atom? x)
             x
-            {atom? {cdr x}}
+            (atom? (cdr x))
             x
-            {atom? {cadr x}}
+            (atom? (cadr x))
             x
-            {if {eq? {quote def} {car x}} {eq? {quote compile} {car {cadr x}}}}
-            {list
-             {quote def}
-             {quote compile}
-             {list self {cons {quote fn} {cons {cdr {cadr x}} {cddr x}}}}}
-            x}
+            (if (eq? 'def (car x)) (eq? 'compile (car (cadr x))))
+            (list
+             'def
+             'compile
+             (list self (cons 'fn (cons (cdr (cadr x)) (cddr x)))))
+            x)
           env
-          accum}}}}
-      {replace-magic {list {quote quote} MAGIC} MAGIC}}}
-    {{fn {self} {fn {r e} {self self r e}}}
-     {fn
-      {s r e}
-      {if {eq? {quote MAGIC} e}
+          accum))))
+      (replace-magic (list 'quote MAGIC) MAGIC)))
+    ((fn (self) (fn (r e) (self self r e)))
+     (fn
+      (s r e)
+      (if (eq? 'MAGIC e)
         r
-        {atom? e}
+        (atom? e)
         e
-        {eq? {quote quote} {car e}}
+        (eq? 'quote (car e))
         e
-        {cons {s s r {car e}} {s s r {cdr e}}}}}}}}
-  {call 2}
-  {push
-   {{fn
-     {replace-magic}
-     {{fn
-       {self}
-       {fn
-        {f}
-        {fn
-         {x env accum}
-         {f
-          {if {eq? x {quote rotten}}
+        (cons (s s r (car e)) (s s r (cdr e))))))))
+  (call 2)
+  (push
+   ((fn
+     (replace-magic)
+     ((fn
+       (self)
+       (fn
+        (f)
+        (fn
+         (x env accum)
+         (f
+          (if (eq? x 'rotten)
             "YOUR COMPILER HAS A VIRUS!!1!eleventyone"
-            {atom? x}
+            (atom? x)
             x
-            {atom? {cdr x}}
+            (atom? (cdr x))
             x
-            {atom? {cadr x}}
+            (atom? (cadr x))
             x
-            {if {eq? {quote def} {car x}} {eq? {quote compile} {car {cadr x}}}}
-            {list
-             {quote def}
-             {quote compile}
-             {list self {cons {quote fn} {cons {cdr {cadr x}} {cddr x}}}}}
-            x}
+            (if (eq? 'def (car x)) (eq? 'compile (car (cadr x))))
+            (list
+             'def
+             'compile
+             (list self (cons 'fn (cons (cdr (cadr x)) (cddr x)))))
+            x)
           env
-          accum}}}}
-      {replace-magic {list {quote quote} MAGIC} MAGIC}}}
-    {{fn {self} {fn {r e} {self self r e}}}
-     {fn
-      {s r e}
-      {if {eq? {quote MAGIC} e}
+          accum))))
+      (replace-magic (list 'quote MAGIC) MAGIC)))
+    ((fn (self) (fn (r e) (self self r e)))
+     (fn
+      (s r e)
+      (if (eq? 'MAGIC e)
         r
-        {atom? e}
+        (atom? e)
         e
-        {eq? {quote quote} {car e}}
+        (eq? 'quote (car e))
         e
-        {cons {s s r {car e}} {s s r {cdr e}}}}}}}}
-  {call 2}
-  {call 1}}}
-{closure
+        (cons (s s r (car e)) (s s r (cdr e))))))))
+  (call 2)
+  (call 1)))
+(closure
  1
  ()
- {{closure 2 () {{access 2} {access 2} {access 0} {access 1} {call 3}}}}}
-{closure
+ ((closure 2 () ((access 2) (access 2) (access 0) (access 1) (call 3)))))
+(closure
  3
  ()
- {{get-global eq?}
-  {push MAGIC}
-  {access 2}
-  {call 2}
-  {if {{access 1}}
-    {{get-global atom?}
-     {access 2}
-     {call 1}
-     {if {{access 2}}
-       {{get-global eq?}
-        {push quote}
-        {get-global car}
-        {access 2}
-        {call 1}
-        {call 2}
-        {if {{access 2}}
-          {{get-global cons}
-           {access 0}
-           {access 0}
-           {access 1}
-           {get-global car}
-           {access 2}
-           {call 1}
-           {call 3}
-           {access 0}
-           {access 0}
-           {access 1}
-           {get-global cdr}
-           {access 2}
-           {call 1}
-           {call 3}
-           {call 2}}}}}}}}}
-{call 1}
-{call 1}
-{closure
+ ((get-global eq?)
+  (push MAGIC)
+  (access 2)
+  (call 2)
+  (if ((access 1))
+    ((get-global atom?)
+     (access 2)
+     (call 1)
+     (if ((access 2))
+       ((get-global eq?)
+        (push quote)
+        (get-global car)
+        (access 2)
+        (call 1)
+        (call 2)
+        (if ((access 2))
+          ((get-global cons)
+           (access 0)
+           (access 0)
+           (access 1)
+           (get-global car)
+           (access 2)
+           (call 1)
+           (call 3)
+           (access 0)
+           (access 0)
+           (access 1)
+           (get-global cdr)
+           (access 2)
+           (call 1)
+           (call 3)
+           (call 2)))))))))
+(call 1)
+(call 1)
+(closure
  3
  ()
- {{get-global symbol?}
-  {access 0}
-  {call 1}
-  {if {{get-global cons}
-       {get-global var-access}
-       {access 0}
-       {get-global index}
-       {access 0}
-       {access 1}
-       {call 2}
-       {call 2}
-       {access 2}
-       {call 2}}
-    {{get-global atom?}
-     {access 0}
-     {call 1}
-     {if {{get-global cons}
-          {get-global list}
-          {push push}
-          {access 0}
-          {call 2}
-          {access 2}
-          {call 2}}
-       {{get-global eq?}
-        {get-global car}
-        {access 0}
-        {call 1}
-        {push quote}
-        {call 2}
-        {if {{get-global cons}
-             {get-global list}
-             {push push}
-             {get-global cadr}
-             {access 0}
-             {call 1}
-             {call 2}
-             {access 2}
-             {call 2}}
-          {{get-global eq?}
-           {get-global car}
-           {access 0}
-           {call 1}
-           {push fn}
-           {call 2}
-           {if {{get-global cons}
-                {get-global fn-closure}
-                {get-global cadr}
-                {access 0}
-                {call 1}
-                {get-global cddr}
-                {access 0}
-                {call 1}
-                {access 1}
-                {call 3}
-                {access 2}
-                {call 2}}
-             {{get-global eq?}
-              {get-global car}
-              {access 0}
-              {call 1}
-              {push if}
-              {call 2}
-              {if {{get-global compile-if}
-                   {get-global cdr}
-                   {access 0}
-                   {call 1}
-                   {access 1}
-                   {access 2}
-                   {call 3}}
-                {{get-global eq?}
-                 {get-global car}
-                 {access 0}
-                 {call 1}
-                 {push def}
-                 {call 2}
-                 {if {{get-global compile-def}
-                      {get-global cadr}
-                      {access 0}
-                      {call 1}
-                      {get-global cddr}
-                      {access 0}
-                      {call 1}
-                      {access 1}
-                      {access 2}
-                      {call 4}}
-                   {{get-global cons}
-                    {get-global list}
-                    {push call}
-                    {get-global len}
-                    {get-global cdr}
-                    {access 0}
-                    {call 1}
-                    {call 1}
-                    {call 2}
-                    {get-global compile-args}
-                    {access 0}
-                    {access 1}
-                    {access 2}
-                    {call 3}
-                    {call 2}}}}}}}}}}}}}}}
-{call 1}
-{set-global compile}
+ ((get-global symbol?)
+  (access 0)
+  (call 1)
+  (if ((get-global cons)
+       (get-global var-access)
+       (access 0)
+       (get-global index)
+       (access 0)
+       (access 1)
+       (call 2)
+       (call 2)
+       (access 2)
+       (call 2))
+    ((get-global atom?)
+     (access 0)
+     (call 1)
+     (if ((get-global cons)
+          (get-global list)
+          (push push)
+          (access 0)
+          (call 2)
+          (access 2)
+          (call 2))
+       ((get-global eq?)
+        (get-global car)
+        (access 0)
+        (call 1)
+        (push quote)
+        (call 2)
+        (if ((get-global cons)
+             (get-global list)
+             (push push)
+             (get-global cadr)
+             (access 0)
+             (call 1)
+             (call 2)
+             (access 2)
+             (call 2))
+          ((get-global eq?)
+           (get-global car)
+           (access 0)
+           (call 1)
+           (push fn)
+           (call 2)
+           (if ((get-global cons)
+                (get-global fn-closure)
+                (get-global cadr)
+                (access 0)
+                (call 1)
+                (get-global cddr)
+                (access 0)
+                (call 1)
+                (access 1)
+                (call 3)
+                (access 2)
+                (call 2))
+             ((get-global eq?)
+              (get-global car)
+              (access 0)
+              (call 1)
+              (push if)
+              (call 2)
+              (if ((get-global compile-if)
+                   (get-global cdr)
+                   (access 0)
+                   (call 1)
+                   (access 1)
+                   (access 2)
+                   (call 3))
+                ((get-global eq?)
+                 (get-global car)
+                 (access 0)
+                 (call 1)
+                 (push def)
+                 (call 2)
+                 (if ((get-global compile-def)
+                      (get-global cadr)
+                      (access 0)
+                      (call 1)
+                      (get-global cddr)
+                      (access 0)
+                      (call 1)
+                      (access 1)
+                      (access 2)
+                      (call 4))
+                   ((get-global cons)
+                    (get-global list)
+                    (push call)
+                    (get-global len)
+                    (get-global cdr)
+                    (access 0)
+                    (call 1)
+                    (call 1)
+                    (call 2)
+                    (get-global compile-args)
+                    (access 0)
+                    (access 1)
+                    (access 2)
+                    (call 3)
+                    (call 2)))))))))))))))
+(call 1)
+(set-global compile)
 pop
-{closure
+(closure
  3
  ()
- {{get-global not}
-  {access 0}
-  {call 1}
-  {if {{access 2}}
-    {{get-global compile-args}
-     {get-global cdr}
-     {access 0}
-     {call 1}
-     {access 1}
-     {get-global compile}
-     {get-global car}
-     {access 0}
-     {call 1}
-     {access 1}
-     {access 2}
-     {call 3}
-     {call 3}}}}}
-{set-global compile-args}
+ ((get-global not)
+  (access 0)
+  (call 1)
+  (if ((access 2))
+    ((get-global compile-args)
+     (get-global cdr)
+     (access 0)
+     (call 1)
+     (access 1)
+     (get-global compile)
+     (get-global car)
+     (access 0)
+     (call 1)
+     (access 1)
+     (access 2)
+     (call 3)
+     (call 3)))))
+(set-global compile-args)
 pop
-{closure
+(closure
  2
  ()
- {{access 1}
-  {if {{get-global list} {push access} {access 1} {call 2}}
-    {{get-global list} {push get-global} {access 0} {call 2}}}}}
-{set-global var-access}
+ ((access 1)
+  (if ((get-global list) (push access) (access 1) (call 2))
+    ((get-global list) (push get-global) (access 0) (call 2)))))
+(set-global var-access)
 pop
-{closure
+(closure
  3
  ()
- {{get-global list}
-  {push closure}
-  {get-global len}
-  {access 0}
-  {call 1}
-  {get-global not}
-  {get-global proper?}
-  {access 0}
-  {call 1}
-  {call 1}
-  {get-global rev}
-  {get-global compile-body}
-  {access 1}
-  {get-global append}
-  {get-global params-env}
-  {access 0}
-  {call 1}
-  {access 2}
-  {call 2}
-  {push ()}
-  {call 3}
-  {call 1}
-  {call 4}}}
-{set-global fn-closure}
+ ((get-global list)
+  (push closure)
+  (get-global len)
+  (access 0)
+  (call 1)
+  (get-global not)
+  (get-global proper?)
+  (access 0)
+  (call 1)
+  (call 1)
+  (get-global rev)
+  (get-global compile-body)
+  (access 1)
+  (get-global append)
+  (get-global params-env)
+  (access 0)
+  (call 1)
+  (access 2)
+  (call 2)
+  (push ())
+  (call 3)
+  (call 1)
+  (call 4)))
+(set-global fn-closure)
 pop
-{closure
+(closure
  1
  ()
- {{get-global cons?}
-  {access 0}
-  {call 1}
-  {if {{get-global cons}
-       {get-global car}
-       {access 0}
-       {call 1}
-       {get-global params-env}
-       {get-global cdr}
-       {access 0}
-       {call 1}
-       {call 1}
-       {call 2}}
-    {{access 0} {if {{get-global list} {access 0} {call 1}} {{push ()}}}}}}}
-{set-global params-env}
+ ((get-global cons?)
+  (access 0)
+  (call 1)
+  (if ((get-global cons)
+       (get-global car)
+       (access 0)
+       (call 1)
+       (get-global params-env)
+       (get-global cdr)
+       (access 0)
+       (call 1)
+       (call 1)
+       (call 2))
+    ((access 0) (if ((get-global list) (access 0) (call 1)) ((push ())))))))
+(set-global params-env)
 pop
-{closure
+(closure
  3
  ()
- {{get-global not}
-  {get-global cdr}
-  {access 0}
-  {call 1}
-  {call 1}
-  {if {{get-global compile}
-       {get-global car}
-       {access 0}
-       {call 1}
-       {access 1}
-       {access 2}
-       {call 3}}
-    {{get-global cons}
-     {get-global list}
-     {push if}
-     {get-global rev}
-     {get-global compile}
-     {get-global cadr}
-     {access 0}
-     {call 1}
-     {access 1}
-     {push ()}
-     {call 3}
-     {call 1}
-     {get-global rev}
-     {get-global compile-if}
-     {get-global cddr}
-     {access 0}
-     {call 1}
-     {access 1}
-     {push ()}
-     {call 3}
-     {call 1}
-     {call 3}
-     {get-global compile}
-     {get-global car}
-     {access 0}
-     {call 1}
-     {access 1}
-     {access 2}
-     {call 3}
-     {call 2}}}}}
-{set-global compile-if}
+ ((get-global not)
+  (get-global cdr)
+  (access 0)
+  (call 1)
+  (call 1)
+  (if ((get-global compile)
+       (get-global car)
+       (access 0)
+       (call 1)
+       (access 1)
+       (access 2)
+       (call 3))
+    ((get-global cons)
+     (get-global list)
+     (push if)
+     (get-global rev)
+     (get-global compile)
+     (get-global cadr)
+     (access 0)
+     (call 1)
+     (access 1)
+     (push ())
+     (call 3)
+     (call 1)
+     (get-global rev)
+     (get-global compile-if)
+     (get-global cddr)
+     (access 0)
+     (call 1)
+     (access 1)
+     (push ())
+     (call 3)
+     (call 1)
+     (call 3)
+     (get-global compile)
+     (get-global car)
+     (access 0)
+     (call 1)
+     (access 1)
+     (access 2)
+     (call 3)
+     (call 2)))))
+(set-global compile-if)
 pop
-{closure
+(closure
  4
  ()
- {{get-global cons?}
-  {access 0}
-  {call 1}
-  {if {{get-global cons}
-       {get-global list}
-       {push set-global}
-       {get-global car}
-       {access 0}
-       {call 1}
-       {call 2}
-       {get-global cons}
-       {get-global fn-closure}
-       {get-global cdr}
-       {access 0}
-       {call 1}
-       {access 1}
-       {access 2}
-       {call 3}
-       {access 3}
-       {call 2}
-       {call 2}}
-    {{get-global cons}
-     {get-global list}
-     {push set-global}
-     {access 0}
-     {call 2}
-     {get-global compile}
-     {get-global car}
-     {access 1}
-     {call 1}
-     {access 2}
-     {access 3}
-     {call 3}
-     {call 2}}}}}
-{set-global compile-def}
+ ((get-global cons?)
+  (access 0)
+  (call 1)
+  (if ((get-global cons)
+       (get-global list)
+       (push set-global)
+       (get-global car)
+       (access 0)
+       (call 1)
+       (call 2)
+       (get-global cons)
+       (get-global fn-closure)
+       (get-global cdr)
+       (access 0)
+       (call 1)
+       (access 1)
+       (access 2)
+       (call 3)
+       (access 3)
+       (call 2)
+       (call 2))
+    ((get-global cons)
+     (get-global list)
+     (push set-global)
+     (access 0)
+     (call 2)
+     (get-global compile)
+     (get-global car)
+     (access 1)
+     (call 1)
+     (access 2)
+     (access 3)
+     (call 3)
+     (call 2)))))
+(set-global compile-def)
