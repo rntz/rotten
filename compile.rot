@@ -21,7 +21,7 @@
 
 (def (compile-body body env accum)
   ((if (cdr body)
-     (fn (x) (compile-body (cdr body) env (cons 'pop x)))
+     (fn (x) (compile-body (cdr body) env (cons '(pop) x)))
      (fn (x) x))
     (compile (car body) env accum)))
 

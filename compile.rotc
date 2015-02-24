@@ -1,15 +1,15 @@
 (closure 1 () ((access 0) (if ((push ())) ((push t)))))
 (set-global not)
-pop
+(pop)
 (closure 1 () ((get-global car) (get-global cdr) (access 0) (call 1) (call 1)))
 (set-global cadr)
-pop
+(pop)
 (closure 1 () ((get-global cdr) (get-global cdr) (access 0) (call 1) (call 1)))
 (set-global cddr)
-pop
+(pop)
 (closure 0 t ((access 0)))
 (set-global list)
-pop
+(pop)
 (closure
  1
  ()
@@ -19,7 +19,7 @@ pop
   (if ((get-global proper?) (get-global cdr) (access 0) (call 1) (call 1))
     ((get-global not) (access 0) (call 1)))))
 (set-global proper?)
-pop
+(pop)
 (closure
  2
  ()
@@ -37,10 +37,10 @@ pop
        (call 2))
     ((access 1)))))
 (set-global rev-append)
-pop
+(pop)
 (closure 1 () ((get-global rev-append) (access 0) (push ()) (call 2)))
 (set-global rev)
-pop
+(pop)
 (closure
  2
  ()
@@ -51,7 +51,7 @@ pop
   (access 1)
   (call 2)))
 (set-global append)
-pop
+(pop)
 (closure
  2
  ()
@@ -69,10 +69,10 @@ pop
        (call 2))
     ((access 0)))))
 (set-global len-)
-pop
+(pop)
 (closure 1 () ((get-global len-) (push 0) (access 0) (call 2)))
 (set-global len)
-pop
+(pop)
 (closure
  3
  ()
@@ -96,10 +96,10 @@ pop
           (call 3))))
     ((push ())))))
 (set-global index-)
-pop
+(pop)
 (closure 2 () ((get-global index-) (push 0) (access 0) (access 1) (call 3)))
 (set-global index)
-pop
+(pop)
 (closure
  1
  ()
@@ -111,7 +111,7 @@ pop
   (call 3)
   (call 1)))
 (set-global compile-exp)
-pop
+(pop)
 (closure
  1
  ()
@@ -123,7 +123,7 @@ pop
   (call 3)
   (call 1)))
 (set-global compile-program)
-pop
+(pop)
 (closure
  3
  ()
@@ -153,7 +153,7 @@ pop
   (call 3)
   (call 1)))
 (set-global compile-body)
-pop
+(pop)
 (closure
  3
  ()
@@ -258,7 +258,7 @@ pop
                     (call 3)
                     (call 2)))))))))))))))
 (set-global compile)
-pop
+(pop)
 (closure
  3
  ()
@@ -280,7 +280,7 @@ pop
      (call 3)
      (call 3)))))
 (set-global compile-args)
-pop
+(pop)
 (closure
  2
  ()
@@ -288,7 +288,7 @@ pop
   (if ((get-global list) (push access) (access 1) (call 2))
     ((get-global list) (push get-global) (access 0) (call 2)))))
 (set-global var-access)
-pop
+(pop)
 (closure
  3
  ()
@@ -316,7 +316,7 @@ pop
   (call 1)
   (call 4)))
 (set-global fn-closure)
-pop
+(pop)
 (closure
  1
  ()
@@ -335,7 +335,7 @@ pop
        (call 2))
     ((access 0) (if ((get-global list) (access 0) (call 1)) ((push ())))))))
 (set-global params-env)
-pop
+(pop)
 (closure
  3
  ()
@@ -382,7 +382,7 @@ pop
      (call 3)
      (call 2)))))
 (set-global compile-if)
-pop
+(pop)
 (closure
  4
  ()
