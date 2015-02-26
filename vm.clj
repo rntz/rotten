@@ -7,13 +7,18 @@
 ;;   Clojure lists but Rotten permits improper lists and Clojure does not.
 ;;
 ;; - Closures: Implemented via defrecord.
-(ns vm)
+(ns vm
+  (:use [clojure.core.match :refer [match]]))
 
-(defrecord Closure [arity has-rest-param code env])
+(defrecord Closure [arity has-rest-param? code env])
 (defrecord Cont [instrs env])
 
 (def car first)
 (def cdr second)
+
+(defn to-rlist "Converts a seq to a rotten list."
+  [s]
+  (reduce (fn [x y] [y x]) '() (reverse s)))
 
 (defn t? [x] (not (= nil x)))
 
@@ -60,10 +65,38 @@
     (step-instr (car instrs) (cdr instrs) data env)))
 
 (defn step-cont [value cont data]
-  [(.instrs cont) (cons value data) (.env cont)])
+  [(.instrs cont) (conj data value) (.env cont)])
 
+(declare do-call)
 (defn step-instr [i instrs data env]
-  (case (first i)
-    'pop
-    ))
+  (match [(vec i)]
+    [['pop]]        [instrs (pop data) env]
+    [['push x]]     [instrs (conj data x) env]
+    [['access n]]   [instrs (conj data (nth env n)) env]
+    [['call n]]
+      (let [[f & args] (take (+ 1 n) data)]
+        (do-call f args instrs (nthnext data (+ 1 n)) env))
+    [['if thn-code els-code]]
+      (let [code (if (t? (peek data)) thn-code els-code)
+            data (pop data)]
+        [code (conj data (Cont. instrs env)) env])
+    [['get-global name]]
+      (let [val (if (contains? @globals name) (@globals name)
+                    (throw (Exception. "unbound global")))]
+        [instrs (conj data val) env])
+    [['set-global name]]
+      (do (swap! globals assoc name (peek data))
+          [instrs data env])))
 
+(defn do-call [f as instrs data env]
+  (cond
+    (= f 'apply) (let [[f as] as] (do-call f as))
+    (fn? f)      [instrs (conj data (apply f as)) env]
+    (instance? Closure f)
+      (if ((if (.has-rest-param? f) < not=) (count as) (.arity f))
+        (throw (Exception. "wrong number of arguments to function"))
+        (let [as (if (not (.has-rest-param? f)) as
+                     (concat (take as (.arity f))
+                             (list (to-rlist (drop as (.arity f))))))]
+          [(.code f) (conj data (Cont. instrs env)) (into (.env f) as)]))
+    :else (throw (Exception. "not callable"))))
