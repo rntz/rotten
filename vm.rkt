@@ -56,8 +56,6 @@
   ;; (displayln (format "  ENV ~a" env))
   (define (pop!) (let ([x (car data)]) (set! data (cdr data)) x))
   (define (push! x) (set! data (cons x data)))
-  (define (builtin! nargs f)
-    (push! (apply f (reverse (for/list ([_ nargs]) (pop!))))))
 
   (define (call! func args)
     (match func
