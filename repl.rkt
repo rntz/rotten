@@ -63,4 +63,8 @@
       (pretty-write (evaler exp)))
     (repl evaler)))
 
-(module* main #f (boot) (repl))
+(module+ main
+  (match (current-command-line-arguments)
+    [`#(,x) (boot x)]
+    [`#() (boot)])
+  (repl))
