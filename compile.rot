@@ -1,5 +1,4 @@
 ;; -*- mode: scheme -*-
-
 ;; utility functions
 (def (not x) (if x () 't))
 (def (cadr x) (car (cdr x)))

@@ -27,10 +27,10 @@ so its implementation is quite small:
 
 | File         | LOC   | Description               |
 | ------------ | ----: | ------------------------- |
-| compile.rot  | ~  80 | compiler                  |
-| vm.rkt       | ~ 110 | VM interpreter            |
-| driver.rkt   | ~  80 | repl & other conveniences |
-| **TOTAL:**   | < 300 |                           |
+| compile.rot  | ~  70 | compiler                  |
+| vm.rkt       | ~ 100 | VM interpreter            |
+| driver.rkt   | ~  70 | repl & other conveniences |
+| **TOTAL:**   | < 250 |                           |
 
 There are other files in the repository but they're mostly unnecessary, except
 for `compile.rotc` (the compiled version of `compile.rot`) &mdash; that's needed

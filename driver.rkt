@@ -1,11 +1,10 @@
 #lang racket
 
 (require
-  (prefix-in i: "rotten.rkt")           ;direct interpreter
-  (prefix-in vm: "vm.rkt")              ;VM
-  )
+  (prefix-in i: "rotten.rkt") ;; direct interpreter
+  (prefix-in vm: "vm.rkt"))   ;; VM
 
-;; Convenience tools
+;; Utility
 (define (read-all port)
   (let loop ([acc '()])
     (let ([x (read port)])
@@ -17,9 +16,6 @@
   (with-output-to-file filename #:exists 'truncate/replace
     (lambda ()
       (for ([x code]) (pretty-write x)))))
-
-(define-syntax-rule (silent e)
-  (with-output-to-file "/dev/null" #:exists 'append (lambda () e)))
 
 
 ;;; Manipulating the interpreter
@@ -57,11 +53,6 @@
 
 (define (vm:eval e) (vm:run (vm:compile-exp e)))
 
-;;; useful for extracting compiled code, if you did it at the repl rather than
-;;; using vm:compile!
-(define (vm:save filename var)
-  (write-file filename (hash-ref vm:globals var)))
-
 
 ;;; The repl
 (define (repl [evaler vm:eval])
@@ -71,6 +62,3 @@
     (with-handlers ([exn:fail? (lambda (e) (log-error (exn-message e)))])
       (pretty-write (evaler exp)))
     (repl evaler)))
-
-(define (i:repl) (repl i:eval))
-(define (vm:repl) (repl vm:eval))
