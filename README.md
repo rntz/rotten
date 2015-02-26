@@ -202,8 +202,6 @@ virus. Let's try it!
 
     # compile the evil compiler
     ROTTEN> (write-file "evil.rotc" (compile-program (read-file "evil.rot")))
-    #<void>
-    ROTTEN> ^D
 
     # run the evil compiler
     ~/rotten$ racket repl.rkt evil.rotc
