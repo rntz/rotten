@@ -158,7 +158,7 @@ Some slightly larger examples:
 
 ## Observing the Trusting Trust exploit in Rotten
 
-Rotten starts up with the compiler loaded:
+Rotten starts up by loading the compiler:
 
     ~/rotten$ racket repl.rkt
     VM rebooting
@@ -171,15 +171,15 @@ Rotten starts up with the compiler loaded:
                 x))
     ((push 0) (set-global x) (pop) (get-global x))
 
-This lets us compile files at the REPL:
+With this, we can compile files at the REPL:
 
     ROTTEN> (def compiled (compile-program (read-file "compile.rot")))
     [... output omitted ...]
     ROTTEN> (write-file "new-compile.rotc" compiled)
     #<void>
 
-We just compiled our compiler! By providing an argument to `repl.rkt`, we can
-tell it what compiled code to boot up from:
+We just compiled our compiler! We can give `repl.rkt` an argument to tell it
+what compiled compiler to boot up from:
 
     ROTTEN> ^D
     ~/rotten$ racket repl.rkt new-compile.rotc
@@ -218,11 +218,10 @@ virus. Let's try it!
     ROTTEN> rotten
     "YOUR COMPILER HAS A VIRUS!!1!eleventyone"
 
-    # in fact, our infected compiler has *also* produced an exact copy of itself
+    # In fact, our infected compiler has *also* produced an exact copy of itself!
+    # But of course, our safe compiler and our infected compiler differ.
     ~/racket$ diff -s infected.rotc infected-2.rotc
     Files infected.rotc and infected-2.rotc are identical
-
-    # but of course, our safe compiler and our infected compiler differ
     ~/racket$ diff -q compile.rotc infected.rotc
     Files compile.rotc and infected.rotc differ
 
