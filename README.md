@@ -29,7 +29,7 @@ so its implementation is quite small:
 | ------------ | ----: | ------------------------- |
 | compile.rot  | ~  70 | compiler                  |
 | vm.rkt       | ~ 100 | VM interpreter            |
-| driver.rkt   | ~  70 | repl & other conveniences |
+| repl.rkt     | ~  70 | repl & other conveniences |
 | **TOTAL:**   | < 250 |                           |
 
 There are other files in the repository but they're mostly unnecessary, except
@@ -65,7 +65,7 @@ RoTT could inject into the compiler, but it will have to do for now.
 | rotten.rot       | AST-walking metacircular Rotten interpreter (in Rotten). |
 | vm.rkt           | VM interpreter.                                          |
 | rotten.rkt       | AST-walking Rotten interpreter (in Racket).              |
-| driver.rkt       | Rotten REPL & other conveniences.                        |
+| repl.rkt         | Rotten REPL & other conveniences.                        |
 | quines.rkt       | Demonstration of various quining techniques.             |
 | compile.rotc     | Pre-compiled image of compile.rot, used for bootstrapping VM. |
 | infected.rotc    | RoTT-infected version of compile.rotc.                        |
