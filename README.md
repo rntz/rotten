@@ -156,6 +156,75 @@ Some slightly larger examples:
       (if x (rev-append (cdr x) (cons (car x) y))
           y))
 
+## Observing the Trusting Trust exploit in Rotten
+
+Rotten starts up with the compiler loaded:
+
+    ~/rotten$ racket repl.rkt
+    VM rebooting
+    VM loading compile.rotc
+    VM loading {read,write}-file extensions
+    ROTTEN> (compile-exp '(+ 2 3))
+    ((get-global +) (push 2) (push 3) (call 2))
+    ROTTEN> (compile-program
+              '((def x 0)
+                x))
+    ((push 0) (set-global x) (pop) (get-global x))
+
+This lets us compile files at the REPL:
+
+    ROTTEN> (def compiled (compile-program (read-file "compile.rot")))
+    [... output omitted ...]
+    ROTTEN> (write-file "new-compile.rotc" compiled)
+    #<void>
+
+We just compiled our compiler! By providing an argument to `repl.rkt`, we can
+tell it what compiled code to boot up from:
+
+    ~/rotten$ racket repl.rkt new-compile.rotc
+    VM rebooting
+    VM loading new-compile.rotc
+    VM loading {read,write}-file extensions
+    ROTTEN>
+
+To double-check our new compiler's integrity, we compare it with our previous
+compiler:
+
+    ~/rotten$ diff -s compile.rotc new-compile.rotc
+    Files compile.rotc and new-compile.rotc are identical
+
+Our compiler produced an exact copy of itself!
+
+Now, remember `evil.rot`? It contains an evil compiler that, if we use it to
+compile `compile.rot`, will produce a compiler with a self-propagating virus.
+Let's try it!
+
+    ROTTEN> (write-file "evil.rotc" (compile-program (read-file "evil.rot")))
+    #<void>
+    ROTTEN> ^D
+    ~/rotten$ racket repl.rkt evil.rotc
+    ROTTEN> (write-file "infected.rotc" (compile-program (read-file "compile.rot")))
+    #<void>
+    ROTTEN> ^D
+    ~/rotten$ racket repl.rkt infected.rotc
+    ;; now we're running the virus-infected compiler
+    ROTTEN> rotten  ;; this triggers a bug!
+    "YOUR COMPILER HAS A VIRUS!!1!eleventyone"
+    ;; if we re-compile, the bug will persist
+    ROTTEN> (write-file "infected-2.rotc" (compile-program (read-file "compile.rot")))
+    #<void>
+    ROTTEN> ^D
+    ~/rotten$ racket repl.rkt infected-2.rotc
+    ROTTEN> rotten
+    "YOUR COMPILER HAS A VIRUS!!1!eleventyone"
+    ROTTEN> ^D
+    # in fact, our infected compiler has *also* produced an exact copy of itself
+    ~/racket$ diff -s infected.rotc infected-2.rotc
+    Files infected.rotc and infected-2.rotc are identical
+    # but of course, our safe compiler and our infected compiler differ
+    ~/racket$ diff -q compile.rotc infected.rotc
+    Files compile.rotc and infected.rotc differ
+
 ## Files
 
 | File             | Purpose                                                  |
