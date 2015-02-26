@@ -56,9 +56,7 @@ RoTT could inject into the compiler, but it will have to do for now.
 
 [quine]: http://en.wikipedia.org/wiki/Quine_(computing)
 
-## A quick and dirty guide to Rotten
-
-To get started:
+## Getting Started
 
     # first line assumes Ubuntu or Debian; adjust as necessary for your distro
     ~$ sudo apt-get install git racket
@@ -71,6 +69,8 @@ To get started:
     ROTTEN>
 
 Now we're at the Rotten repl!
+
+## A quick and dirty guide to Rotten
 
     ;; Comments start with semicolons.
     ROTTEN> (+ 2 2)
