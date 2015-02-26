@@ -208,25 +208,22 @@ virus. Let's try it!
     # run the evil compiler
     ~/rotten$ racket repl.rkt evil.rotc
     ROTTEN> (write-file "infected.rotc" (compile-program (read-file "compile.rot")))
-    #<void>
-    ROTTEN> ^D
 
-    # run the virus-infected compiler
+    # run the virus-infected compiler, observe it is buggy
     ~/rotten$ racket repl.rkt infected.rotc
-    ROTTEN> rotten  ;; this triggers a bug!
+    ROTTEN> rotten
     "YOUR COMPILER HAS A VIRUS!!1!eleventyone"
-    ;; if we re-compile, the bug will persist
     ROTTEN> (write-file "infected-2.rotc" (compile-program (read-file "compile.rot")))
-    #<void>
-    ROTTEN> ^D
+
+    # observe that the bug persists even over a recompile
     ~/rotten$ racket repl.rkt infected-2.rotc
     ROTTEN> rotten
     "YOUR COMPILER HAS A VIRUS!!1!eleventyone"
-    ROTTEN> ^D
 
     # in fact, our infected compiler has *also* produced an exact copy of itself
     ~/racket$ diff -s infected.rotc infected-2.rotc
     Files infected.rotc and infected-2.rotc are identical
+
     # but of course, our safe compiler and our infected compiler differ
     ~/racket$ diff -q compile.rotc infected.rotc
     Files compile.rotc and infected.rotc differ
