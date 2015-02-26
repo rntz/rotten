@@ -181,6 +181,7 @@ This lets us compile files at the REPL:
 We just compiled our compiler! By providing an argument to `repl.rkt`, we can
 tell it what compiled code to boot up from:
 
+    ROTTEN> ^D
     ~/rotten$ racket repl.rkt new-compile.rotc
     VM rebooting
     VM loading new-compile.rotc
@@ -196,18 +197,22 @@ compiler:
 Our compiler produced an exact copy of itself!
 
 Now, remember `evil.rot`? It contains an evil compiler that, if we use it to
-compile `compile.rot`, will produce a compiler with a self-propagating virus.
-Let's try it!
+compile `compile.rot`, produces a compiler infected with a self-propagating
+virus. Let's try it!
 
+    # compile the evil compiler
     ROTTEN> (write-file "evil.rotc" (compile-program (read-file "evil.rot")))
     #<void>
     ROTTEN> ^D
+
+    # run the evil compiler
     ~/rotten$ racket repl.rkt evil.rotc
     ROTTEN> (write-file "infected.rotc" (compile-program (read-file "compile.rot")))
     #<void>
     ROTTEN> ^D
+
+    # run the virus-infected compiler
     ~/rotten$ racket repl.rkt infected.rotc
-    ;; now we're running the virus-infected compiler
     ROTTEN> rotten  ;; this triggers a bug!
     "YOUR COMPILER HAS A VIRUS!!1!eleventyone"
     ;; if we re-compile, the bug will persist
@@ -218,6 +223,7 @@ Let's try it!
     ROTTEN> rotten
     "YOUR COMPILER HAS A VIRUS!!1!eleventyone"
     ROTTEN> ^D
+
     # in fact, our infected compiler has *also* produced an exact copy of itself
     ~/racket$ diff -s infected.rotc infected-2.rotc
     Files infected.rotc and infected-2.rotc are identical
