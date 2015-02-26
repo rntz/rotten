@@ -58,8 +58,13 @@ RoTT could inject into the compiler, but it will have to do for now.
 
 ## Getting Started
 
-    # first line assumes Ubuntu or Debian; adjust as necessary for your distro
+First, install [git](http://git-scm.com/downloads) and
+[Racket](http://download.racket-lang.org/). If you're on Ubuntu or Debian:
+
     ~$ sudo apt-get install git racket
+
+Now grab Rotten:
+
     ~$ git clone https://github.com/rntz/rotten.git
     ~$ cd rotten
     ~/rotten$ racket repl.rkt
@@ -70,7 +75,7 @@ RoTT could inject into the compiler, but it will have to do for now.
 
 Now we're at the Rotten repl!
 
-## A quick and dirty guide to Rotten
+## Quick and dirty guide to Rotten
 
     ;; Comments start with semicolons.
     ROTTEN> (+ 2 2)
