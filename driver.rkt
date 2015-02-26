@@ -58,7 +58,9 @@
 (define (repl [evaler vm:eval])
   (display "ROTTEN> ")
   (define exp (read))
-  (unless (equal? exp '(unquote quit))
+  (unless (or (eof-object? exp) (equal? exp '(unquote quit)))
     (with-handlers ([exn:fail? (lambda (e) (log-error (exn-message e)))])
       (pretty-write (evaler exp)))
     (repl evaler)))
+
+(module* main #f (boot) (repl))
