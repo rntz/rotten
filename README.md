@@ -5,8 +5,8 @@ Thompson's [Reflections on Trusting Trust][rott].
 
 [rott]: http://cm.bell-labs.com/who/ken/trust.html
 
-<!-- TODO: Tutorial on demonstrating the RoTT bug with Rotten -->
 <!-- TODO: Tutorial on Rotten, the language. -->
+<!-- TODO: Tutorial on demonstrating the RoTT bug with Rotten -->
 <!-- TODO: Section about the VM being based on the CAM? -->
 <!-- TODO: Guide to where to start reading the files? -->
 
@@ -56,7 +56,103 @@ RoTT could inject into the compiler, but it will have to do for now.
 
 [quine]: http://en.wikipedia.org/wiki/Quine_(computing)
 
-## File manifest
+## A quick and dirty guide to Rotten
+
+To get started:
+
+    # first line assumes Ubuntu or Debian; adjust as necessary for your distro
+    ~$ sudo apt-get install git racket
+    ~$ git clone https://github.com/rntz/rotten.git
+    ~$ cd rotten
+    ~/rotten$ racket repl.rkt
+    VM rebooting
+    VM loading compile.rotc
+    VM loading {read,write}-file extensions
+    ROTTEN>
+
+Now we're at the Rotten repl!
+
+    ;; Comments start with semicolons.
+    ROTTEN> (+ 2 2)
+    4
+    ;; `def' defines global variables.
+    ROTTEN> (def x 0)
+    0
+    ROTTEN> x
+    0
+    ;; `def' also defines functions, Scheme-style.
+    ROTTEN> (def (double x) (+ x x))
+    #(struct:closure 1 #f ((get-global +) (access 0) (access 0) (call 2)) ())
+    ;; The above is just the printed representation of a compiled function;
+    ;; you can safely ignore it.
+    ROTTEN> (double 17)
+    34
+    ;; You can define variadic functions with dotted parameter lists:
+    ROTTEN> (def (list . xs) xs)
+    #(struct:closure 0 #t ((access 0)) ())
+    ROTTEN> (list 1 2 3)
+    (1 2 3)
+    ;; cons, car, and cdr work as normal.
+    ;; Conses are immutable; there is no set-car! or set-cdr!.
+    ROTTEN> (cons 0 1)
+    (0 . 1)
+    ROTTEN> (car '(a b))
+    a
+    ;; The car and cdr of () are both ().
+    ROTTEN> (cdr '())
+    ()
+
+Booleans and conditionals in Rotten are a little different from other Lisps:
+
+
+    ;; Rotten uses () for false, everything else is true. 't is the conventional
+    ;; true value. You need to quote 't, or you'll get an unbound variable
+    ;; error.
+    ROTTEN> (eq? 0 0)
+    t
+    ROTTEN> (eq? 0 1)
+    ()
+    ;; () and nil are distinct in Rotten; nil is just an ordinary symbol.
+    ROTTEN> (if () 'yes 'no)
+    no
+    ROTTEN> (if 'nil 'yes 'no)
+    yes
+    ;; `if' can be used with three arguments, as in Scheme:
+    ROTTEN> (if (eq? 0 1) 'yes 'no)
+    no
+    ;; or with two arguments, returning '() if the condition is false:
+    ROTTEN> (if (eq? 0 1) 'yes)
+    ()
+    ;; or with N arguments, like a less-parenthesized 'cond:
+    ROTTEN> (if (eq? 0 1) 'first
+                (eq? 0 0) 'second)
+    second
+    ROTTEN> (if (eq? 0 1) 'first
+                (eq? 0 2) 'second
+                'otherwise)
+    otherwise
+    ROTTEN> (if (eq? 0 1) 'first
+                (eq? 0 2) 'second)
+    ()
+
+Here are a few slightly larger examples:
+
+    ;; A (non-tail-recursive) map function:
+    (def (map f l)
+      (if l
+        (cons (f (car l))
+              (map f (cdr l)))))
+
+    ;; In Rotten it's hard to locally define recursive functions, so often we
+    ;; use globally-defined helper functions. Here, rev-append is a helper for
+    ;; rev.
+    (def (rev l) (rev-append l ()))
+    (def (rev-append l acc)
+      (if x (rev-append (cdr x) (cons (car x) y))
+          y))
+
+
+## Files
 
 | File             | Purpose                                                  |
 | ---------------- | -------------------------------------------------------- |
