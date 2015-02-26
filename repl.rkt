@@ -34,7 +34,7 @@
   (vm:reset)
   (printf "VM loading ~a\n" filename)
   (vm:load filename)
-  (displayln "VM loading {read,write}-file extensions...")
+  (displayln "VM loading {read,write}-file extensions")
   (hash-set! vm:globals 'read-file read-file)
   (hash-set! vm:globals 'write-file write-file))
 
