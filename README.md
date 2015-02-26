@@ -75,7 +75,7 @@ Now grab Rotten:
 
 Now we're at the Rotten repl!
 
-## Quick and dirty guide to Rotten
+## A quick and dirty guide to Rotten
 
     ;; Comments start with semicolons.
     ROTTEN> (+ 2 2)
@@ -140,7 +140,7 @@ Booleans and conditionals in Rotten are a little different from other Lisps:
                 (eq? 0 2) 'second)
     ()
 
-Here are a few slightly larger examples:
+Some slightly larger examples:
 
     ;; A (non-tail-recursive) map function:
     (def (map f l)
@@ -155,7 +155,6 @@ Here are a few slightly larger examples:
     (def (rev-append l acc)
       (if x (rev-append (cdr x) (cons (car x) y))
           y))
-
 
 ## Files
 
