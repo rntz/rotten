@@ -60,8 +60,8 @@
   (define (call! func args)
     (match func
       ['apply
-        (match-define `(,func ,args) args)
-        (call! func args)]
+        (match-define `(,f ,as) args)
+        (call! f as)]
       [(? procedure?) (push! (apply func args))]
       [(closure f-arity f-has-rest-param f-code f-env)
         (define num-args (length args))
