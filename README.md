@@ -78,67 +78,56 @@ Now we're at the Rotten repl!
 ## A quick and dirty guide to Rotten
 
     ;; Comments start with semicolons.
-    ROTTEN> (+ 2 2)
-    4
+    (+ 2 3)      ; --> 5
+
     ;; `def' defines global variables.
-    ROTTEN> (def x 0)
-    0
-    ROTTEN> x
-    0
+    (def x 17)
+    x            ; --> 17
+
     ;; `def' also defines functions, Scheme-style.
-    ROTTEN> (def (double x) (+ x x))
-    #(struct:closure 1 #f ((get-global +) (access 0) (access 0) (call 2)) ())
-    ;; The above is just the printed representation of a compiled function;
-    ;; you can safely ignore it.
-    ROTTEN> (double 17)
-    34
+    (def (double x) (+ x x))
+    (double 23)  ; --> 46
     ;; You can define variadic functions with dotted parameter lists:
-    ROTTEN> (def (list . xs) xs)
-    #(struct:closure 0 #t ((access 0)) ())
-    ROTTEN> (list 1 2 3)
-    (1 2 3)
-    ;; cons, car, and cdr work as normal.
-    ;; Conses are immutable; there is no set-car! or set-cdr!.
-    ROTTEN> (cons 0 1)
-    (0 . 1)
-    ROTTEN> (car '(a b))
-    a
+    (def (list . xs) xs)
+    (list 2 3 5) ; --> (2 3 5)
+
+    ;; cons, car, and cdr work as expected.
+    (cons 34 46) ; --> (34 . 46)
+    (car '(a b)) ; --> a
+    (cdr '(a b)) ; --> (b)
     ;; The car and cdr of () are both ().
-    ROTTEN> (cdr '())
-    ()
+    (car '())    ; --> ()
+    (cdr '())    ; --> ()
+    ;; Conses are immutable; there is no set-car! or set-cdr!.
 
-Booleans and conditionals in Rotten are a little different from other Lisps:
+    ;; () is false; everything else is true. 't is the conventional true value.
+    ;; t is just a symbol; you must quote it, or get an unbound variable error.
+    (eq? 0 0)    ; --> t
+    (eq? 0 1)    ; --> ()
+    ()           ; --> ()
+    t            ; --> raises error, "hash-ref: no value found for key"
 
+    ;; () and nil are distinct; nil is just a symbol.
+    (if ()   'yes 'no)          ; --> no
+    (if 'nil 'yes 'no)          ; --> yes
 
-    ;; Rotten uses () for false, everything else is true. 't is the conventional
-    ;; true value. You need to quote 't, or you'll get an unbound variable
-    ;; error.
-    ROTTEN> (eq? 0 0)
-    t
-    ROTTEN> (eq? 0 1)
-    ()
-    ;; () and nil are distinct in Rotten; nil is just an ordinary symbol.
-    ROTTEN> (if () 'yes 'no)
-    no
-    ROTTEN> (if 'nil 'yes 'no)
-    yes
-    ;; `if' can be used with three arguments, as in Scheme:
-    ROTTEN> (if (eq? 0 1) 'yes 'no)
-    no
-    ;; or with two arguments, returning '() if the condition is false:
-    ROTTEN> (if (eq? 0 1) 'yes)
-    ()
-    ;; or with N arguments, like a less-parenthesized 'cond:
-    ROTTEN> (if (eq? 0 1) 'first
-                (eq? 0 0) 'second)
-    second
-    ROTTEN> (if (eq? 0 1) 'first
-                (eq? 0 2) 'second
-                'otherwise)
-    otherwise
-    ROTTEN> (if (eq? 0 1) 'first
-                (eq? 0 2) 'second)
-    ()
+    ;; `if' is variadic, like a less-parenthesized 'cond:
+    (if (eq? 0 1) 'yes)         ; --> ()
+    (if (eq? 0 1) 'yes 'no)     ; --> no
+    (if (eq? 0 1) 'first
+        (eq? 0 0) 'second)
+    ; --> second
+    (if (eq? 0 1) 'first
+        (eq? 0 2) 'second)
+    ; --> ()
+    (if (eq? 0 1) 'first
+        (eq? 0 2) 'second
+        'otherwise)
+    ; --> otherwise
+
+    ;; Rotten's builtin functions are:
+    ;; cons car cdr apply symbol? cons? atom? eq? + -
+    ;; Rotten does not have macros, let-binding, or quasiquotation.
 
 Some slightly larger examples:
 
@@ -148,6 +137,10 @@ Some slightly larger examples:
         (cons (f (car l))
               (map f (cdr l)))))
 
+    ;; Fixed-point combinator.
+    (def (fix f)
+      (fn a (apply f (cons (fix f) a))))
+
     ;; In Rotten it's hard to locally define recursive functions, so often we
     ;; use globally-defined helper functions. Here, rev-append is a helper for
     ;; rev.
@@ -156,9 +149,10 @@ Some slightly larger examples:
       (if x (rev-append (cdr x) (cons (car x) y))
           y))
 
-## Observing the Trusting Trust exploit in Rotten
+## The Trusting Trust exploit in Rotten
 
-Rotten starts up by loading the compiler:
+Rotten starts up by loading a pre-compiled image of the Rotten compiler from
+`compile.rotc`:
 
     ~/rotten$ racket repl.rkt
     VM rebooting
@@ -166,60 +160,64 @@ Rotten starts up by loading the compiler:
     VM loading {read,write}-file extensions
     ROTTEN> (compile-exp '(+ 2 3))
     ((get-global +) (push 2) (push 3) (call 2))
-    ROTTEN> (compile-program
-              '((def x 0)
-                x))
+    ROTTEN> (compile-program '((def x 0)
+                               x))
     ((push 0) (set-global x) (pop) (get-global x))
 
 With this, we can compile files at the REPL:
 
     ROTTEN> (def compiled (compile-program (read-file "compile.rot")))
     [... output omitted ...]
-    ROTTEN> (write-file "new-compile.rotc" compiled)
+    ROTTEN> (write-file "new.rotc" compiled)
     #<void>
 
-We just compiled our compiler! We can give `repl.rkt` an argument to tell it
-what compiled compiler to boot up from:
+We just compiled our compiler! We can give `repl.rkt` an argument to force it to
+load our newly compiled compiler image:
 
-    ROTTEN> ^D
-    ~/rotten$ racket repl.rkt new-compile.rotc
+    ~/rotten$ racket repl.rkt new.rotc
     VM rebooting
-    VM loading new-compile.rotc
+    VM loading new.rotc
     VM loading {read,write}-file extensions
     ROTTEN>
 
 To double-check our new compiler's integrity, we compare it with our previous
 compiler:
 
-    ~/rotten$ diff -s compile.rotc new-compile.rotc
-    Files compile.rotc and new-compile.rotc are identical
+    ~/rotten$ diff -s compile.rotc new.rotc
+    Files compile.rotc and new.rotc are identical
 
 Our compiler produced an exact copy of itself!
 
 Now, remember `evil.rot`? It contains an evil compiler that, if we use it to
 compile `compile.rot`, produces a compiler infected with a self-propagating
-virus. Let's try it!
+virus. Let's try it! First, we compile the evil compiler:
 
-    # compile the evil compiler
+    ~/rotten$ racket repl.rkt
     ROTTEN> (write-file "evil.rotc" (compile-program (read-file "evil.rot")))
 
-    # run the evil compiler
+Now, we use the evil compiler to compile `compile.rot` into `infected.rotc`:
+
     ~/rotten$ racket repl.rkt evil.rotc
     ROTTEN> (write-file "infected.rotc" (compile-program (read-file "compile.rot")))
 
-    # run the virus-infected compiler, observe it is buggy
+Finally, we run the infected compiler, and observe it is buggy:
+
     ~/rotten$ racket repl.rkt infected.rotc
     ROTTEN> rotten
     "YOUR COMPILER HAS A VIRUS!!1!eleventyone"
-    ROTTEN> (write-file "infected-2.rotc" (compile-program (read-file "compile.rot")))
 
-    # observe that the bug persists even over a recompile
+Observe that the bug persists even over a recompile:
+
+    ~/rotten$ racket repl.rkt infected.rotc
+    ROTTEN> (write-file "infected-2.rotc" (compile-program (read-file "compile.rot")))
+    ROTTEN> ^D
     ~/rotten$ racket repl.rkt infected-2.rotc
     ROTTEN> rotten
     "YOUR COMPILER HAS A VIRUS!!1!eleventyone"
 
-    # In fact, our infected compiler has *also* produced an exact copy of itself!
-    # But of course, our safe compiler and our infected compiler differ.
+In fact, our infected compiler has *also* produced an exact copy of itself! But
+of course, our safe compiler and our infected compiler differ:
+
     ~/racket$ diff -s infected.rotc infected-2.rotc
     Files infected.rotc and infected-2.rotc are identical
     ~/racket$ diff -q compile.rotc infected.rotc
