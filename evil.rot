@@ -120,13 +120,8 @@
 ;; --->
 ;;
 ;;     (def compile
-;;       ((fn (f) (fn (x env accum) (f NEWX env accum)))
+;;       ((fn (f) (fn (x env accum) (f FILTERED-X env accum)))
 ;;        (fn (x env accum) BODY ...)))
-;;
-;;     (def compile
-;;       ((fn (f g) (fn (x env accum) (f (g x) env accum)))
-;;        (fn (x env accum) BODY ...)
-;;        (fn (x) THE-FILTER)))
 ;;
 ;; Except that the (fn (f) ....) is actually quine-ified.
 ;;
