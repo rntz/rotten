@@ -73,7 +73,7 @@ Now grab Rotten:
     VM loading {read,write}-file extensions
     ROTTEN>
 
-Now we're at the Rotten repl!
+Now you're at the Rotten repl!
 
 ## A quick and dirty guide to Rotten
 
@@ -171,8 +171,8 @@ With this, we can compile files at the REPL:
     ROTTEN> (write-file "new.rotc" compiled)
     #<void>
 
-We just compiled our compiler! We can give `repl.rkt` an argument to force it to
-load our newly compiled compiler image:
+We just compiled our compiler! We can give `repl.rkt` an argument to force it
+to load our newly compiled compiler image:
 
     ~/rotten$ racket repl.rkt new.rotc
     VM rebooting
