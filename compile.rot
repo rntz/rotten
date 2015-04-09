@@ -44,6 +44,9 @@
 
 (def (var-access var ix) (if ix (list 'access ix) (list 'get-global var)))
 
+;;; TODO: DOCUMENT ORDER OF VARIABLES IN ENV!
+;;; eg. in (lambda (x y) (lambda (z q) (list x y z q))
+;;; what indices to x, y, z, q have?
 (def (fn-closure params body env)
   ;; produces (closure ARITY HAS-REST-PARAM CODE)
   (list 'closure (len params) (not (proper? params))
