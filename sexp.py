@@ -8,6 +8,7 @@
 
 import re
 from collections import namedtuple
+import StringIO
 
 class Cons(namedtuple('Cons', 'car cdr')):
     def __eq__(self, other):
@@ -16,7 +17,8 @@ class Cons(namedtuple('Cons', 'car cdr')):
 class Symbol(object):
     def __init__(self, name): self.name = name
     def __str__(self): return self.name
-    def __eq__(self, other): return isinstance(other, Symbol) and self.name == other.name
+    def __eq__(self, other):
+        return isinstance(other, Symbol) and self.name == other.name
     def __cmp__(self, other):
         assert isinstance(other, Symbol)
         return cmp(self.name, other.name)
@@ -29,40 +31,58 @@ def is_sexp(x):                 # shallow test
             or (isinstance(x, int) and not isinstance(x, bool))
             or x == ())
 
-# turns a Python sequence into a cons-list
+def is_null(x):
+    assert is_sexp(x)
+    return x == ()
+
+def is_true(x):
+    assert is_sexp(x)
+    return not is_null(x)
+
+def truthify(x):
+    """Takes Python truth values to Rotten truth values."""
+    if x: return Symbol("t")
+    else: return ()
+
 def consify(lst):
+    """Turns a Python sequence into a Rotten list."""
     result = ()
     for e in reversed(lst):
         result = Cons(e, result)
     return result
 
-# generates the elements of a cons-list
-def iter_cons_list(conses):
+def cons_iter(conses):
+    """Iterates over a Rotten list."""
     while conses != ():
         assert isinstance(conses, Cons)
         yield conses.car
         conses = conses.cdr
 
-def write_sexp(file, exp):
+def write(f, exp):
+    """Writes a Rotten value to a file-like object."""
     if isinstance(exp, Symbol):
-        file.write(exp.name)
-    elif isinstance(exp, int) or isinstance(exp, str):
-        file.write(repr(exp))
+        f.write(exp.name)
     elif isinstance(exp, Cons) or exp == ():
-        file.write('(')
+        f.write('(')
         first = True
         while isinstance(exp, Cons):
             if not first:
-                file.write(' ')
-            write_sexp(file, exp.car)
+                f.write(' ')
+            write(f, exp.car)
             exp = exp.cdr
             first = False
         if exp != ():
-            file.write('. ')
-            write_sexp(file, exp)
-        file.write(')')
+            f.write('. ')
+            write(f, exp)
+        f.write(')')
     else:
-        assert 0, "Not an s-expression: %s" % (exp,)
+        f.write(repr(exp))
+
+def to_str(exp):
+    """Turns a Rotten value into a string containing its s-expression."""
+    s = StringIO.StringIO()
+    write(s, exp)
+    return s.getvalue()
 
 # ---------- PARSING ----------
 class ParseError(Exception):
@@ -82,7 +102,7 @@ tok_re = re.compile(r"""
   | '                               # quote
 """, re.VERBOSE)
 
-def is_whitespace(tok): return re.match('\s', tok)
+def is_whitespace(tok): return re.match(r'\s', tok)
 def is_lparen(tok): return tok == '('
 def is_rparen(tok): return tok == ')'
 def is_quote(tok): return tok == "'"
@@ -90,9 +110,9 @@ def is_symbol(tok): return bool(re.match('[-a-zA-Z_!?+=<>/*@$%^&]', tok))
 def is_number(tok): return bool(re.match('-|[0-9]', tok))
 def is_string(tok): return tok.startswith('"')
 
-# S-expression parsing. I could depend on an external library but this is easier.
-# returns (new_buf, exp)
-def parse_exp(buf, cfg = None):
+# S-expression parsing. I could depend on an external library but this is
+# easier. Returns (new_buf, exp).
+def parse_exp(buf):
     while True:
         if not buf:
             raise EOF(buf, "end of input")
@@ -118,11 +138,10 @@ def parse_exp(buf, cfg = None):
         elif is_number(tok):
             return buf, int(tok)
         elif is_string(tok):
-            raise NotImplementedError("haven't implemented string literal parsing")
+            raise NotImplementedError(
+                "haven't implemented string literal parsing")
 
         assert False, "impossible! I'm sure I covered all cases!"
-        assert 0
-        print 'what'
 
 # returns (new_buf, list-of-exps)
 def parse_exps(buf):

@@ -1,46 +1,15 @@
 from collections import namedtuple
-import sys
 import types
-import StringIO
 
 import sexp
 from sexp import Symbol, Cons
-
-def is_null(x):
-    assert sexp.is_sexp(x)
-    return x == ()
-
-def is_true(x):
-    assert sexp.is_sexp(x)
-    assert not isinstance(x, bool)
-    return not is_null(x)
-
-def truthify(x):
-    if x: return Symbol("t")
-    else: return ()
 
 # whether x is a callable python object
 def is_callable(x):
     return isinstance(x, types.FunctionType) or hasattr(x, '__call__')
 
-def sexp_str(v):
-    if not sexp.is_sexp(v):
-        return str(v)
-    s = StringIO.StringIO()
-    sexp.write_sexp(s, v)
-    return s.getvalue()
-
-class Cont(namedtuple('Cont', 'instrs env')):
-    def __str__(self):
-        return 'Cont(%s, %s)' % (sexp_str(self.instrs),
-                                 ' '.join(sexp_str(x) for x in self.env))
-
-class Closure(namedtuple('Closure', 'arity has_rest_param code env')):
-    def __str__(self):
-        if hasattr(self, '_name'):
-            return '<Closure %s>' % (self._name,)
-        else:
-            return '<Closure>'
+Cont = namedtuple('Cont', 'instrs env')
+Closure = namedtuple('Closure', 'arity has_rest_param code env')
 
 class ApplyBuiltin(object): pass
 applyBuiltin = object()   # singleton
@@ -53,13 +22,13 @@ def cdr(x):
     assert isinstance(x, Cons), "Not a cons: %s" % (x,)
     return x.cdr
 
-def is_symbol(x): return truthify(isinstance(x, Symbol))
-def is_cons(x): return truthify(isinstance(x, Cons))
-def is_atom(x): return truthify(not isinstance(x, Cons))
+def is_symbol(x): return sexp.truthify(isinstance(x, Symbol))
+def is_cons(x): return sexp.truthify(isinstance(x, Cons))
+def is_atom(x): return sexp.truthify(not isinstance(x, Cons))
 # FIXME: is is_eq correct? unit test this!
-def is_eq(x,y): return truthify(x == y)
-def add(x,y): return x + y
-def sub(x,y): return x - y
+def is_eq(x, y): return sexp.truthify(x == y)
+def add(x, y): return x + y
+def sub(x, y): return x - y
 
 def make_globals():
     return {"apply": applyBuiltin,
@@ -82,14 +51,9 @@ class VM(object):
     def set_global(self, sym, value):
         assert isinstance(sym, Symbol)
         self.globals[sym.name] = value
-        if isinstance(value, Closure):
-            # hint to make debugging easier
-            value._name = sym.name
 
     def get_global(self, sym):
         assert isinstance(sym, Symbol)
-        # print 'getting global %s' % sym.name
-        # print 'value: %s' % (self.globals[sym.name],)
         return self.globals[sym.name]
 
     def run_body(self, instrs, data=None, env=None):
@@ -117,15 +81,12 @@ class Thread(object):
         return self.data[0]
 
     # internal convenience methods, no abstraction here
-    def push(self, x):
-        # print 'push: %s' % (x,)
-        self.data.append(x)
-
+    def push(self, x): self.data.append(x)
     def pop(self): return self.data.pop()
 
     def push_cont(self):
         if not self.instrs:
-            print 'omitting no-op continuation'
+            # print 'omitting no-op continuation'
             return
         self.push(Cont(self.instrs, self.env))
 
@@ -135,11 +96,7 @@ class Thread(object):
 
     def run(self):
         while not self.is_done():
-            # print 'INSTRS:', sexp_str(self.instrs)
-            # print '  DATA:', ' '.join(sexp_str(x) for x in reversed(self.data))
-            # print '   ENV:', ' '.join(sexp_str(x) for x in self.env)
             self.step()
-            # print
 
     def step(self):
         assert not self.is_done()
@@ -164,7 +121,7 @@ class Thread(object):
         if not isinstance(instr, Cons):
             raise VMError("instruction is not a cons: %s" % (instr,))
         tp = car(instr).name
-        args = tuple(sexp.iter_cons_list(cdr(instr)))
+        args = tuple(sexp.cons_iter(cdr(instr)))
         if tp == 'push':
             val, = args         # 1-argument tuple unpacking!
             self.push(val)
@@ -178,7 +135,7 @@ class Thread(object):
             arity, has_rest_param, code = args
             # need to copy self.env because it is mutable
             env = list(self.env)
-            closure = Closure(arity, is_true(has_rest_param), code, env)
+            closure = Closure(arity, sexp.is_true(has_rest_param), code, env)
             self.push(closure)
         elif tp == 'call':
             n, = args
@@ -188,7 +145,7 @@ class Thread(object):
             self.call(func, func_args)
         elif tp == 'if':
             then_instrs, else_instrs = args
-            instrs = then_instrs if is_true(self.pop()) else else_instrs
+            instrs = then_instrs if sexp.is_true(self.pop()) else else_instrs
             # NB. the continuations for if-branches don't really need an `env'
             # value, since env won't be changed. But it's simpler to do this
             # than to create a new type of continuation.
@@ -206,7 +163,6 @@ class Thread(object):
 
     # args is a Python sequence
     def call(self, func, args):
-        # print "CALLING: %s(%s)" % (func, ', '.join(sexp_str(x) for x in args))
         # apply must, alas, be special-cased
         while func is applyBuiltin:
             func = args[0]

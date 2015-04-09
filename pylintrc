@@ -1,0 +1,6 @@
+[MESSAGES CONTROL]
+# pylint is fucking paranoid by default
+disable= missing-docstring, invalid-name, too-few-public-methods, multiple-statements, star-args, too-many-locals
+
+[REPORTS]
+reports= no

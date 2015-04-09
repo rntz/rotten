@@ -1,10 +1,12 @@
 #!/usr/bin/env python
+import sys
+
 import sexp
 from sexp import Symbol
 import vm
 
-def read_all(file):
-    string = file.read()
+def read_all(f):
+    string = f.read()
     buf, exps = sexp.parse_exps(buffer(string))
     assert not buf              # should have read to EOF
     return exps
@@ -16,11 +18,11 @@ def read_file(filename):
 # exps is a cons-list of expressions
 def write_file(filename, exps):
     with open(filename, 'w') as f:
-        for e in sexp.iter_cons_list(exps):
-            sexp.write_sexp(f, e)
+        for e in sexp.cons_iter(exps):
+            sexp.write(f, e)
             f.write('\n')
 
-def vm_boot(filename = "compile.rotc"):
+def vm_boot(filename="compile.rotc"):
     print "booting up VM"
     vmstate = vm.VM()
     print "VM loading %s" % filename
@@ -36,10 +38,10 @@ def vm_load(vmstate, filename):
 def vm_call(vmstate, funcname, *args):
     # perhaps I could use Thread.call somehow?
     # it wasn't meant to be an external method, but maybe it could become one
-    instrs = sexp.consify([sexp.consify([Symbol("get-global"), Symbol(funcname)])]
-                          + [sexp.consify([Symbol("push"), x]) for x in args]
-                          + [sexp.consify([Symbol("call"), len(args)])])
-    print list(sexp.iter_cons_list(instrs))
+    instrs = sexp.consify(
+        [sexp.consify([Symbol("get-global"), Symbol(funcname)])]
+        + [sexp.consify([Symbol("push"), x]) for x in args]
+        + [sexp.consify([Symbol("call"), len(args)])])
     return vmstate.run_expr(instrs)
 
 def vm_compile_expr(vmstate, expr):
@@ -47,10 +49,6 @@ def vm_compile_expr(vmstate, expr):
 
 def vm_eval(vmstate, expr):
     c = vm_compile_expr(vmstate, expr)
-    print
-    print '---------- COMPILED ----------'
-    print 'code: ', c
-    print
     return vmstate.run_expr(c)
 
 class EOF(Exception): pass
@@ -85,8 +83,6 @@ def repl(vmstate):
         if exp == sexp.consify([Symbol("unquote"), Symbol("quit")]):
             break
 
-        print 'exp:', exp
-
         # run it
         try:
             val = vm_eval(vmstate, exp)
@@ -95,12 +91,15 @@ def repl(vmstate):
             print >>sys.stderr, e
             sys.stderr.flush()
         else:
-            print vm.sexp_str(val) # FIXME: shouldn't be in vm
+            # FIXME: for some reason I'm getting a space in front of this
+            print 'x', sexp.to_str(val)
 
-if __name__ == '__main__':
-    import sys
+def main():
     if len(sys.argv) > 1:
         vmstate = vm_boot(sys.argv[1])
     else:
         vmstate = vm_boot()
     repl(vmstate)
+
+if __name__ == '__main__':
+    main()
