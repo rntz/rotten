@@ -1,52 +1,77 @@
-import sexp
-from sexp import Symbol
+from collections import namedtuple
+import sys
 import types
+import StringIO
 
-def is_null(x): return x == ()
-def is_true(x): return not is_null(x)
+import sexp
+from sexp import Symbol, Cons
+
+def is_null(x):
+    assert sexp.is_sexp(x)
+    return x == ()
+
+def is_true(x):
+    assert sexp.is_sexp(x)
+    assert not isinstance(x, bool)
+    return not is_null(x)
+
+def truthify(x):
+    if x: return Symbol("t")
+    else: return ()
 
 # whether x is a callable python object
 def is_callable(x):
     return isinstance(x, types.FunctionType) or hasattr(x, '__call__')
 
-# TODO: maybe make these namedtuples?
-class Closure(object):
-    def __init__(self, arity, has_rest_param, code, env):
-        self.arity = arity
-        self.has_rest_param = has_rest_param
-        self.code = code
-        self.env = env
+def sexp_str(v):
+    if not sexp.is_sexp(v):
+        return str(v)
+    s = StringIO.StringIO()
+    sexp.write_sexp(s, v)
+    return s.getvalue()
 
-class Cont(object):
-    def __init__(self, instrs, env):
-        self.instrs = instrs
-        self.env = env
+class Cont(namedtuple('Cont', 'instrs env')):
+    def __str__(self):
+        return 'Cont(%s, %s)' % (sexp_str(self.instrs),
+                                 ' '.join(sexp_str(x) for x in self.env))
+
+class Closure(namedtuple('Closure', 'arity has_rest_param code env')):
+    def __str__(self):
+        if hasattr(self, '_name'):
+            return '<Closure %s>' % (self._name,)
+        else:
+            return '<Closure>'
 
 class ApplyBuiltin(object): pass
 applyBuiltin = object()   # singleton
 
 def car(x):
-    assert isinstance(x, tuple)
-    return x[0]
+    assert isinstance(x, Cons), "Not a cons: %s" % (x,)
+    return x.car
 
 def cdr(x):
-    assert isinstance(x, tuple)
-    return x[1]
+    assert isinstance(x, Cons), "Not a cons: %s" % (x,)
+    return x.cdr
 
-def eq(x, y):
-    return x == y
+def is_symbol(x): return truthify(isinstance(x, Symbol))
+def is_cons(x): return truthify(isinstance(x, Cons))
+def is_atom(x): return truthify(not isinstance(x, Cons))
+# FIXME: is is_eq correct? unit test this!
+def is_eq(x,y): return truthify(x == y)
+def add(x,y): return x + y
+def sub(x,y): return x - y
 
 def make_globals():
     return {"apply": applyBuiltin,
-            "cons": lambda x,y: (x,y),
+            "cons": Cons,
             "car": car,
             "cdr": cdr,
-            "symbol?": lambda x: isinstance(x, Symbol),
-            "cons?": lambda x: isinstance(x, tuple),
-            "atom?": lambda x: not isinstance(x, tuple),
-            "eq?": eq,
-            "+": lambda x,y: x + y,
-            "-": lambda x,y: x - y}
+            "symbol?": is_symbol,
+            "cons?": is_cons,
+            "atom?": is_atom,
+            "eq?": is_eq,
+            "+": add,
+            "-": sub}
 
 class VMError(Exception): pass
 
@@ -57,9 +82,14 @@ class VM(object):
     def set_global(self, sym, value):
         assert isinstance(sym, Symbol)
         self.globals[sym.name] = value
+        if isinstance(value, Closure):
+            # hint to make debugging easier
+            value._name = sym.name
 
     def get_global(self, sym):
         assert isinstance(sym, Symbol)
+        # print 'getting global %s' % sym.name
+        # print 'value: %s' % (self.globals[sym.name],)
         return self.globals[sym.name]
 
     def run_body(self, instrs, data=None, env=None):
@@ -86,9 +116,18 @@ class Thread(object):
         assert len(self.data) == 1
         return self.data[0]
 
-    # pure internal convenience methods, no abstraction here
-    def push(self, x): self.data.append(x)
+    # internal convenience methods, no abstraction here
+    def push(self, x):
+        # print 'push: %s' % (x,)
+        self.data.append(x)
+
     def pop(self): return self.data.pop()
+
+    def push_cont(self):
+        if not self.instrs:
+            print 'omitting no-op continuation'
+            return
+        self.push(Cont(self.instrs, self.env))
 
     # we're done if we have no instructions left and <= 1 value on the stack.
     def is_done(self):
@@ -96,10 +135,11 @@ class Thread(object):
 
     def run(self):
         while not self.is_done():
-            print 'INSTRS:', self.instrs
-            print '  DATA:', self.data
-            print '   ENV:', self.env
+            # print 'INSTRS:', sexp_str(self.instrs)
+            # print '  DATA:', ' '.join(sexp_str(x) for x in reversed(self.data))
+            # print '   ENV:', ' '.join(sexp_str(x) for x in self.env)
             self.step()
+            # print
 
     def step(self):
         assert not self.is_done()
@@ -121,6 +161,8 @@ class Thread(object):
         # an instruction is of the form (TYPE ARGS...), encoded as a cons-list
         # where TYPE is a symbol
         # first, we de-consify it
+        if not isinstance(instr, Cons):
+            raise VMError("instruction is not a cons: %s" % (instr,))
         tp = car(instr).name
         args = tuple(sexp.iter_cons_list(cdr(instr)))
         if tp == 'push':
@@ -141,7 +183,6 @@ class Thread(object):
         elif tp == 'call':
             n, = args
             func_args = self.data[-n:]
-            func_args.reverse()
             del self.data[-n:]  # in-place removal of elements
             func = self.pop()
             self.call(func, func_args)
@@ -151,7 +192,7 @@ class Thread(object):
             # NB. the continuations for if-branches don't really need an `env'
             # value, since env won't be changed. But it's simpler to do this
             # than to create a new type of continuation.
-            self.push(Cont(self.instrs, self.env))
+            self.push_cont()
             self.instrs = instrs
         elif tp == 'get-global':
             sym, = args
@@ -165,6 +206,7 @@ class Thread(object):
 
     # args is a Python sequence
     def call(self, func, args):
+        # print "CALLING: %s(%s)" % (func, ', '.join(sexp_str(x) for x in args))
         # apply must, alas, be special-cased
         while func is applyBuiltin:
             func = args[0]
@@ -187,14 +229,15 @@ class Thread(object):
             raise VMError("too many arguments to function")
 
         # munge arguments into environment, taking into account rest-param
-        env = func.env
+        env = []
         if not func.has_rest_param:
             env.extend(args)
         else:
             env.extend(args[:func.arity])
-            env.append(args[func.arity:])
+            env.append(sexp.consify(args[func.arity:]))
+        env.extend(func.env)
 
         # Jump into function
-        self.push(Cont(self.instrs, self.env))
+        self.push_cont()
         self.instrs = func.code
         self.env = env

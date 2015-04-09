@@ -40,15 +40,17 @@ def vm_call(vmstate, funcname, *args):
                           + [sexp.consify([Symbol("push"), x]) for x in args]
                           + [sexp.consify([Symbol("call"), len(args)])])
     print list(sexp.iter_cons_list(instrs))
-    vmstate.run_expr(instrs)
+    return vmstate.run_expr(instrs)
 
 def vm_compile_expr(vmstate, expr):
-    vm_call(vmstate, "compile-exp", expr)
+    return vm_call(vmstate, "compile-exp", expr)
 
 def vm_eval(vmstate, expr):
     c = vm_compile_expr(vmstate, expr)
+    print
     print '---------- COMPILED ----------'
-    print 'result: %s' % s
+    print 'code: ', c
+    print
     return vmstate.run_expr(c)
 
 class EOF(Exception): pass
@@ -73,6 +75,7 @@ def read_sexp():
 def repl(vmstate):
     while True:
         print 'pyROTTEN> ',
+        sys.stdout.flush()
 
         # grab an expression
         try:
@@ -88,10 +91,11 @@ def repl(vmstate):
         try:
             val = vm_eval(vmstate, exp)
         except vm.VMError as e:
+            sys.stdout.flush()
             print >>sys.stderr, e
+            sys.stderr.flush()
         else:
-            write_sexp(sys.stdout, val)
-            print
+            print vm.sexp_str(val) # FIXME: shouldn't be in vm
 
 if __name__ == '__main__':
     import sys

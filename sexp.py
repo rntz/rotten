@@ -1,50 +1,61 @@
 # S-expressions are represented as follows:
 #
-# - Conses (a . b) are Python tuples (a, b)
-# - Nil () is the Python empty-tuple ()
+# - Conses (a . b) are represented as Cons(a, b)
+# - Nil () is represented by the Python empty-tuple ()
 # - A symbol 'a is represented as Symbol("a")
-# - Numbers are represented by Python numbers
-# - Strings are represented by Python strings
+# - Numbers are represented by Python ints
+# - Strings are represented by Python strs
 
 import re
+from collections import namedtuple
 
-# TODO: namedtupleify?
+class Cons(namedtuple('Cons', 'car cdr')):
+    def __eq__(self, other):
+        return isinstance(other, Cons) and super(Cons, self) == other
+
 class Symbol(object):
     def __init__(self, name): self.name = name
     def __str__(self): return self.name
     def __eq__(self, other): return isinstance(other, Symbol) and self.name == other.name
-    def __cmp__(self, other): return cmp(self.name, other.name)
+    def __cmp__(self, other):
+        assert isinstance(other, Symbol)
+        return cmp(self.name, other.name)
     def __repr__(self): return 'Symbol(%r)' % self.name
 
 # ---------- SEXP UTILITIES ----------
+def is_sexp(x):                 # shallow test
+    return (isinstance(x, (Cons, Symbol, str))
+            # isinstance(True, int) == True, grumble grumble
+            or (isinstance(x, int) and not isinstance(x, bool))
+            or x == ())
+
 # turns a Python sequence into a cons-list
 def consify(lst):
     result = ()
     for e in reversed(lst):
-        result = (e, result)
+        result = Cons(e, result)
     return result
 
 # generates the elements of a cons-list
 def iter_cons_list(conses):
     while conses != ():
-        assert isinstance(conses, tuple)
-        assert len(conses) == 2
-        yield conses[0]
-        conses = conses[1]
+        assert isinstance(conses, Cons)
+        yield conses.car
+        conses = conses.cdr
 
 def write_sexp(file, exp):
     if isinstance(exp, Symbol):
         file.write(exp.name)
     elif isinstance(exp, int) or isinstance(exp, str):
         file.write(repr(exp))
-    elif isinstance(exp, tuple):
+    elif isinstance(exp, Cons) or exp == ():
         file.write('(')
         first = True
-        while isinstance(exp, tuple) and exp:
+        while isinstance(exp, Cons):
             if not first:
                 file.write(' ')
-            write_sexp(file, exp[0])
-            exp = exp[1]
+            write_sexp(file, exp.car)
+            exp = exp.cdr
             first = False
         if exp != ():
             file.write('. ')
