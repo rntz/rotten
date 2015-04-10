@@ -150,8 +150,12 @@ def parse_exp(buf):
         elif is_number(tok):
             return buf, int(tok)
         elif is_string(tok):
-            raise NotImplementedError(
-                "haven't implemented string literal parsing")
+            contents = tok[1:-1]
+            if "\\" in contents:
+                raise NotImplementedError("string escapes not implemented")
+            assert not '"' in contents
+            assert isinstance(contents, (str, unicode))
+            return buf, contents
 
         assert False, "impossible! I'm sure I covered all cases!"
 
