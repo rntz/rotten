@@ -51,47 +51,46 @@ def vm_eval(vmstate, expr):
     c = vm_compile_expr(vmstate, expr)
     return vmstate.run_expr(c)
 
-class EOF(Exception): pass
+class QuitRepl(Exception): pass
 
-def read_sexp():
+def read_sexps():
+    # TODO: semicolons should start comments
     string = ''
     while True:
-        # FIXME: need to test for actual EOF!
         line = sys.stdin.readline()
         if not line:
-            raise EOF("end of file")
+            raise QuitRepl("end of input")
         string += line
         try:
             buf, e = sexp.parse_exp(string)
         except sexp.EOF:
+            # ran out of input before parsing a complete sexp, keep reading
             continue
-        assert not buf.strip()  # should be at EOF modulo whitespace
-        # FIXME: it might not be! could parse multiple sexps on same line!
-        # for now, don't support this
-        return e
+        yield e
+        # if there's nothing else left on the line but whitespace, we're done reading sexps
+        if not buf.strip():
+            break
+        # copy the remainder of the string into a fresh string and keep reading
+        string = str(buf)
 
 def repl(vmstate):
-    while True:
-        sys.stdout.write('pyROTTEN> ')
-        sys.stdout.flush()
-
-        # grab an expression
-        try:
-            exp = read_sexp()
-        except EOF:
-            break
-        if exp == sexp.consify([Symbol("unquote"), Symbol("quit")]):
-            break
-
-        # run it
-        try:
-            val = vm_eval(vmstate, exp)
-        except vm.VMError as e:
+    try:
+        while True:
+            sys.stdout.write('pyROTTEN> ')
             sys.stdout.flush()
-            print >>sys.stderr, e
-            sys.stderr.flush()
-        else:
-            print sexp.to_str(val)
+            for exp in read_sexps():
+                if exp == sexp.consify([Symbol("unquote"), Symbol("quit")]):
+                    raise QuitRepl(",quit command")
+                try:
+                    val = vm_eval(vmstate, exp)
+                except vm.VMError as e:
+                    sys.stdout.flush()
+                    print >>sys.stderr, e
+                    sys.stderr.flush()
+                else:
+                    print sexp.to_str(val)
+    except QuitRepl:
+        pass
 
 def main():
     if len(sys.argv) > 1:

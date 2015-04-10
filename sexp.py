@@ -110,27 +110,39 @@ def is_symbol(tok): return bool(re.match('[-a-zA-Z_!?+=<>/*@$%^&]', tok))
 def is_number(tok): return bool(re.match('-|[0-9]', tok))
 def is_string(tok): return tok.startswith('"')
 
+# Tokenizing
+def next_tok(buf):
+    if not buf:
+        raise EOF(buf, "end of input")
+
+    m = tok_re.match(buf)
+    if not m:
+        raise ParseError(buf, "could not find a token")
+
+    tok = m.group()
+    return buf[len(tok):], tok
+
+def expect_tok(buf, pred, msg):
+    newbuf, tok = next_tok(buf)
+    if not pred(tok):
+        raise ParseError(buf, msg)
+    return newbuf, tok
+
 # S-expression parsing. I could depend on an external library but this is
 # easier. Returns (new_buf, exp).
 def parse_exp(buf):
     while True:
-        if not buf:
-            raise EOF(buf, "end of input")
-
-        m = tok_re.match(buf)
-        if not m:
-            raise ParseError(buf, "could not find a token")
-
-        tok = m.group()
-        buf = buf[len(tok):]
+        pre_buf = buf           # useful for error reporting
+        buf, tok = next_tok(buf)
 
         if is_whitespace(tok):
             continue
         elif is_lparen(tok):
             buf, exps = parse_exps(buf)
+            buf, _ = expect_tok(buf, is_rparen, "expected a right-paren")
             return buf, consify(exps)
         elif is_rparen(tok):
-            raise RParen(buf, "unexpected right-paren")
+            raise RParen(pre_buf, "unexpected right-paren")
         elif is_quote(tok):
             return buf, Symbol("quote")
         elif is_symbol(tok):
