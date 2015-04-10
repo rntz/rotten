@@ -72,7 +72,7 @@ def read_sexp():
 
 def repl(vmstate):
     while True:
-        print 'pyROTTEN> ',
+        sys.stdout.write('pyROTTEN> ')
         sys.stdout.flush()
 
         # grab an expression
@@ -91,8 +91,7 @@ def repl(vmstate):
             print >>sys.stderr, e
             sys.stderr.flush()
         else:
-            # FIXME: for some reason I'm getting a space in front of this
-            print 'x', sexp.to_str(val)
+            print sexp.to_str(val)
 
 def main():
     if len(sys.argv) > 1:
