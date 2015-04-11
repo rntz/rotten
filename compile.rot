@@ -1,5 +1,5 @@
 ;; -*- mode: scheme -*-
-;; Reading vm-design.org may help you understand how this compiler works.
+;; Reading vm-design.md may help you understand how this compiler works.
 
 ;; utility functions
 (def (not x) (if x () 't))
