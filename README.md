@@ -258,6 +258,9 @@ of course, our safe compiler and our infected compiler differ:
 | rotten.rkt       | AST-walking Rotten interpreter (in Racket).              |
 | repl.rkt         | Rotten REPL & other conveniences.                        |
 | quines.rkt       | Demonstration of various quining techniques.             |
+| vm.py            | VM interpreter, in Python.                               |
+| repl.py          | Rotten REPL, in Python.                                  |
+| sexp.py          | S-expression parser and other utilities, in Python.      |
 | compile.rotc     | Pre-compiled image of compile.rot, used for bootstrapping VM. |
 | infected.rotc    | RoTT-infected version of compile.rotc.                        |
 | README.md        | The file you're currently reading.                       |
