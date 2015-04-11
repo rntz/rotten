@@ -5,15 +5,16 @@ Thompson's [Reflections on Trusting Trust][rott].
 
 [rott]: http://cm.bell-labs.com/who/ken/trust.html
 
-<!-- TODO: Tutorial on Rotten, the language. -->
-<!-- TODO: Tutorial on demonstrating the RoTT bug with Rotten -->
 <!-- TODO: Section about the VM being based on the CAM? -->
 <!-- TODO: Guide to where to start reading the files? -->
 
 ## How it works, in brief
 
 1. Rotten compiles to a simple abstract machine ("the VM").
-2. The VM is implemented in [Racket](http://www.racket-lang.org/).
+
+2. The VM is implemented in [Racket](http://www.racket-lang.org/). There's now a
+   prototype implementation in Python, as well!
+
 3. The compiler from Rotten to VM-code is
    [written in Rotten](http://en.wikipedia.org/wiki/Self-hosting).
 
@@ -63,6 +64,9 @@ First, install [git](http://git-scm.com/downloads) and
 
     ~$ sudo apt-get install git racket
 
+If you can't install Racket but have [Python](https://www.python.org), you can
+try the [Python VM](#using-the-python-vm).
+
 Now grab Rotten:
 
     ~$ git clone https://github.com/rntz/rotten.git
@@ -74,6 +78,19 @@ Now grab Rotten:
     ROTTEN>
 
 Now you're at the Rotten repl!
+
+### Using the Python VM
+
+There's a prototype implementation of the VM in Python. It may still have bugs,
+but you can use it like so:
+
+    ~/rotten$ python repl.py
+    booting up VM
+    VM loading compile.rotc
+    VM loading {read,write}-file extensions
+    pyROTTEN>
+
+Enjoy!
 
 ## A quick and dirty guide to Rotten
 
