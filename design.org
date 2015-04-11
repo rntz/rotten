@@ -18,37 +18,3 @@ need to do control stack manipulation...)
 OTOH, it doesn't shop up in the *interface* to the VM, which is what I care
 about most.
 
-* stack machine design
-three registers/components:
-- I: instruction stream
-- E: environment stack (for local vars)
-- D: data stack (for arguments, return values, and return frames)
-
-functions/closures are structures with fields:
-- arity: number of parameters (excluding rest parameter)
-- has-rest-param: whether it has a rest parameter or not
-- env: list representing closed-over environment
-- instrs: the VM instructions for the function
-
-instructions:
-- (push LIT): pushes LIT onto D
-- pop: pops one element from D and ignores it
-- (access N): pushes E(N) onto D
-- (call N): calls D(N) with D(N-1..0) as arguments
-- (closure ARITY REST-PARAM INSTRS): makes a closure and pushes it onto D
-- (if THEN-INSTRS ELSE-INSTRS):
-  pops D. if result is true, proceeds to THEN-INSTRS; otherwise, proceeds to ELSE-INSTRS.
-
-- (get-global SYMBOL): pushes the value of SYMBOL in global environment onto D.
-- (set-global SYMBOL): sets SYMBOL to (top D) in global environment.
-  does NOT pop D - so that its "return value" is what it has set SYMBOL to.
-
-builtin functions are implemented using a cheap trick. there are no special
-instructions for them. rather, all of them except 'apply are just procedures in
-the underlying implementation language (Racket). when a racket procedure is
-"call"ed in the VM, the VM just calls it in the host language.
-
-the 'apply builtin is different. (TODO: explain why it needs to be different to
-avoid recursively entering VM.) when the symbol 'apply is called, the VM
-interprets it specially. in the global environment, 'apply is bound to 'apply,
-which makes this work "transparently".
