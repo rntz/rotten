@@ -33,11 +33,11 @@ The VM has three piece of local state:
 # Builtins
 
 Builtin functions are implemented using a cheap trick. There are no special
-instructions for them. Rather, all of them except 'apply are just functions in
+instructions for them. Rather, all of them except `apply` are just functions in
 the VM's host language. When a host function is "call"-ed in the VM, the VM just
 calls it in the host language.
 
-The 'apply builtin is different. The global variable 'apply is bound to a
+The `apply` builtin is different. The global variable `apply` is bound to a
 implementation-defined value which the VM handles specially. (TODO: Explain why
 this needs to be special-cased to avoid recursively entering VM.)
 
