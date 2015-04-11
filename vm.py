@@ -65,6 +65,7 @@ class VM(object):
         thread.run()
         return thread.result()
 
+# TODO: env doesn't need to be mutable! use a tuple for it!
 class Thread(object):
     # instrs is a cons-list
     # data, env are Python lists
