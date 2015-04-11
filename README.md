@@ -57,7 +57,7 @@ RoTT could inject into the compiler, but it will have to do for now.
 
 [quine]: http://en.wikipedia.org/wiki/Quine_(computing)
 
-## Getting Started
+## Getting started
 
 First, install [git](http://git-scm.com/downloads) and
 [Racket](http://download.racket-lang.org/). If you're on Ubuntu or Debian:
