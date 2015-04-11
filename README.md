@@ -64,8 +64,8 @@ First, install [git](http://git-scm.com/downloads) and
 
     ~$ sudo apt-get install git racket
 
-If you can't install Racket but have [Python](https://www.python.org), you can
-try the [Python VM](#using-the-python-vm).
+If you don't have Racket but do have [Python](https://www.python.org), you can
+try the [Python VM](#alternative-using-the-python-vm) instead.
 
 Now grab Rotten:
 
@@ -79,7 +79,7 @@ Now grab Rotten:
 
 Now you're at the Rotten repl!
 
-### Using the Python VM
+### Alternative: using the Python VM
 
 There's a prototype implementation of the VM in Python. It may still have bugs,
 but you can use it like so:
@@ -90,7 +90,14 @@ but you can use it like so:
     VM loading {read,write}-file extensions
     pyROTTEN>
 
-Enjoy!
+You can tell it what file to boot up from by giving it a command-line argument,
+just like the Racket version:
+
+    ~/rotten$ python repl.py infected.rotc
+    booting up VM
+    VM loading infected.rotc
+    VM loading {read,write}-file extensions
+    pyROTTEN>
 
 ## A quick and dirty guide to Rotten
 
